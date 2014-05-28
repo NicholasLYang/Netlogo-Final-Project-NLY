@@ -1,15 +1,63 @@
+breed [players player]
 to setup
-  ask patches with [pycor >= 0 and pycor <= 1 and pxcor > 0] [set pcolor white]
-  ask patches with [pycor >= -16 and pycor <= -15] [set pcolor white]
-  crt 1
-  [
-    set xcor 1
-    set ycor 2
-  ]
+  
+  ; Was considering adding background, but I realized that colors could be an issue 
+;  ask patches with [pycor <= 0 ] [set pcolor 15]
+;  ask patches with [pycor <= 2 and pycor > 0] [set pcolor 25]
+;  ask patches with [pycor <= 4 and pycor > 2] [set pcolor 45]
+;  ask patches with [pycor <= 6 and pycor > 4] [set pcolor 86]
+;  ask patches with [pycor <= 8 and pycor > 6] [set pcolor 95]
+;  ask patches with [pycor <= 10 and pycor > 8] [set pcolor 104]
+;  ask patches with [pycor > 10] [set pcolor 102]
+;  ask patches with [pycor < -2] [set pcolor green]
+ask patches with [pycor >= 0 and pycor <= 1 and pxcor > 0] [set pcolor white]
+ask patches with [pycor >= -16 and pycor <= -15] [set pcolor white]
+ask patch -15 -14 [
+                   set pcolor red
+                   sprout-players 1
+                   [ 
+                     set color yellow
+                     set shape "circle"
+                     set heading 90
+                     set size 2
+                   ]
+                  ]
+ 
+  
 end
 to clear
   ca
 end
+to physics
+  ask turtles 
+  [
+   ifelse [pcolor] of patch-right-and-ahead 90 1 = white
+    [
+    ]
+    [
+    rt 90
+    fd 1
+    lt 90
+    ]
+  ]
+end
+to moveLeft
+  ask players
+  [
+    
+ bk 1
+  ]
+end
+
+to moveRight
+  ask players
+  [
+  fd 1
+  ]
+
+end
+
+    
 @#$#@#$#@
 GRAPHICS-WINDOW
 210
@@ -63,6 +111,74 @@ BUTTON
 NIL
 clear
 NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+93
+270
+172
+303
+NIL
+physics
+T
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+45
+336
+142
+369
+NIL
+moveRight
+T
+1
+T
+TURTLE
+NIL
+D
+NIL
+NIL
+1
+
+BUTTON
+106
+389
+194
+422
+NIL
+moveLeft
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+69
+53
+142
+86
+NIL
+mouse
+T
 1
 T
 OBSERVER
