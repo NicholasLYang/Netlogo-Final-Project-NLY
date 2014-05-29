@@ -1,26 +1,12 @@
+globals [amountOfJumps levelNumber]
+; Limits number of jumps per level
 breed [players player]
-to setup
-  ask patches [set pcolor blue] 
-  ask patches with [pycor >= 0 and pycor <= 1 and pxcor > 0] [set pcolor white]
-  ask patches with [pycor >= -16 and pycor <= -15] [set pcolor white]
-  ;crt 1
-  ;[
-   ; set xcor 1
-  ;  set ycor 2
- ; ]
-  
-  ; Was considering adding background, but I realized that colors could be an issue 
-;  ask patches with [pycor <= 0 ] [set pcolor 15]
-;  ask patches with [pycor <= 2 and pycor > 0] [set pcolor 25]
-;  ask patches with [pycor <= 4 and pycor > 2] [set pcolor 45]
-;  ask patches with [pycor <= 6 and pycor > 4] [set pcolor 86]
-;  ask patches with [pycor <= 8 and pycor > 6] [set pcolor 95]
-;  ask patches with [pycor <= 10 and pycor > 8] [set pcolor 104]
-;  ask patches with [pycor > 10] [set pcolor 102]
-;  ask patches with [pycor < -2] [set pcolor green]
-ask patches with [pycor >= 0 and pycor <= 1 and pxcor > 0] [set pcolor white]
-ask patches with [pycor >= -16 and pycor <= -15] [set pcolor white]
-ask patch -15 -13 [ set pcolor red]
+to Start
+set levelNumber 0
+end
+
+to PlayerSetup
+
 ask patch -15 -14 [
                    set pcolor red
                    sprout-players 1
@@ -37,7 +23,8 @@ end
 to clear
   ca
 end
-to physics
+to gameRules
+  ; Gravity rules. DON'T CHANGE
   ifelse [heading] of turtles = 270
   [
     ask players 
@@ -68,31 +55,83 @@ to physics
     lt 90
     ]
   ]
-  
+  ; Walls
+  ]
+    ask players
+  [
+  if [pcolor] of patch-here = white
+  [
+    bk 1
+  ]
+; Lava
+  ]
+  ask players
+  [ if [pcolor] of patch-here = orange
+    [
+      fuck
+    ]
+  ]
+  ; Allows for progression through level
+  ask players
+  [
+    if [pcolor] of patch-here = green
+    [
+      
+      set levelNumber levelNumber + 1
+      die
+    ]
+  ]
+    if levelNumber = 0
+  [
+    ask players [die]
+    import-pcolors "TitleScreen.png"
+    PlayerSetup
+    set levelNumber 1
+  ]
+  if levelNumber = 2
+  [
+    ask players [die]
+    import-pcolors "Level1.png"
+    PlayerSetup
+    set levelNumber 3
   ]
 end
 to moveLeft
   ask players
   [  
     set heading 270
+    ifelse [pcolor] of patch-ahead 1 = white
+    [
+      set heading 90
+    ]
+    [
     fd 1
     set heading 90
-   
+    ]
   ]
 end
 
 to moveRight
+
+ 
   ask players
   [
     set heading 90
-  fd 1
+    ifelse [pcolor] of patch-ahead 1 = white
+    [
+    ]
+    [
+      fd 1
+    ]
   ]
 
 end
 
-to setup2
-  setup
-  blocks 
+to setup
+  import-pcolors "Level1.png"
+  PlayerSetup
+ ; OriginalSetup
+ ; blocks 
 end
 to blocks 
   ask patches with [pxcor > -5 and pxcor < 5 and pycor >= -15 and pycor <= -14 ] [set pcolor white] 
@@ -144,16 +183,7 @@ to superjumpleft
   moveleft
 end
 
-to Walls
-  ask players
-  [
-  if [pcolor] of patch-here = white
-  [
-    bk 1
-  ]
 
-  ]
-end
 to fuck
   ask players [ die]
   ask patch -15 -14 [
@@ -185,8 +215,24 @@ to paintWhite
   [ask patch mouse-xcor mouse-ycor [set pcolor white]]
 end
 
+to paintOrange
+  if mouse-down?
+  [ask patch mouse-xcor mouse-ycor [set pcolor orange]]
+end
 
+to paintGreen
+  if mouse-down?
+  [ask patch mouse-xcor mouse-ycor [set pcolor green]]
+end
+to paintBlack
+  if mouse-down?
+[ask patch mouse-xcor mouse-ycor [set pcolor black]]
+end
 
+to paintRed
+  if mouse-down?
+  [ask patch mouse-xcor mouse-ycor [set pcolor red]]
+end
 @#$#@#$#@
 GRAPHICS-WINDOW
 210
@@ -272,7 +318,7 @@ BUTTON
 135
 300
 NIL
-setup2
+setup
 NIL
 1
 T
@@ -303,33 +349,16 @@ NIL
 BUTTON
 82
 394
-161
+180
 427
 NIL
-physics
+gameRules
 T
 1
 T
 OBSERVER
 NIL
 S
-NIL
-NIL
-1
-
-BUTTON
-65
-231
-128
-264
-NIL
-walls
-T
-1
-T
-OBSERVER
-NIL
-NIL
 NIL
 NIL
 1
@@ -418,6 +447,102 @@ NIL
 NIL
 NIL
 1
+
+BUTTON
+89
+228
+198
+261
+NIL
+paintOrange
+T
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+832
+160
+932
+193
+NIL
+paintGreen
+T
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+777
+91
+871
+124
+NIL
+paintBlack
+T
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+724
+47
+810
+80
+NIL
+paintRed
+T
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+722
+229
+785
+262
+NIL
+start
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+MONITOR
+742
+353
+832
+398
+NIL
+levelNumber
+17
+1
+11
 
 @#$#@#$#@
 ## WHAT IS IT?
