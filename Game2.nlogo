@@ -38,10 +38,29 @@ to clear
   ca
 end
 to physics
+  ifelse [heading] of turtles = 270
+  [
+    ask players 
+  [
+   ifelse [pcolor] of patch-left-and-ahead 90 1 = white
+    [
+      
+    ]
+    
+    [
+    lt 90
+    fd 1
+    rt 90
+    ]
+  ] 
+     
+  ]
+  [
   ask turtles 
   [
    ifelse [pcolor] of patch-right-and-ahead 90 1 = white
     [
+      
     ]
     [
     rt 90
@@ -49,18 +68,23 @@ to physics
     lt 90
     ]
   ]
+  
+  ]
 end
 to moveLeft
   ask players
-  [
-    
- bk 1
+  [  
+    set heading 270
+    fd 1
+    set heading 90
+   
   ]
 end
 
 to moveRight
   ask players
   [
+    set heading 90
   fd 1
   ]
 
@@ -123,16 +147,26 @@ end
 to Walls
   ask players
   [
-  if [pcolor] of patch-ahead 0 = white
+  if [pcolor] of patch-here = white
   [
-    set heading 270
-    fd 1
-    set heading 90
+    bk 1
   ]
+
   ]
 end
-
-
+to fuck
+  ask players [ die]
+  ask patch -15 -14 [
+                   sprout-players 1
+                   [ 
+                     set color orange
+                     set shape "person"
+                     set heading 90
+                     set size 1
+                   ]
+  ]
+  end
+;Already done in the program physics
 ;to gravity
   ;must always be on
 ;  ask turtles with [ pcolor = lime] [ set ycor ycor - 1]
@@ -140,7 +174,16 @@ end
   
 ;end
 
+to paintBlue
+  if mouse-down?
+  [
+    ask patch mouse-xcor mouse-ycor [set pcolor blue]]
+end
 
+to paintWhite
+  if mouse-down?
+  [ask patch mouse-xcor mouse-ycor [set pcolor white]]
+end
 
 
 
@@ -275,10 +318,10 @@ NIL
 1
 
 BUTTON
-27
-259
-90
-292
+65
+231
+128
+264
 NIL
 walls
 T
@@ -304,6 +347,74 @@ T
 TURTLE
 NIL
 Q
+NIL
+NIL
+1
+
+BUTTON
+78
+50
+141
+83
+NIL
+fuck
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+66
+95
+162
+128
+NIL
+paintWhite
+T
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+64
+10
+152
+43
+NIL
+paintBlue
+T
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+33
+433
+165
+466
+NIL
+ask players [die]
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
 NIL
 NIL
 1
