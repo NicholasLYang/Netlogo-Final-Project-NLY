@@ -2,6 +2,7 @@ globals [amountOfJumps levelNumber]
 ; Limits number of jumps per level
 breed [players player]
 to Start
+  ca
 reset-ticks
 set levelNumber -1
 end
@@ -39,7 +40,7 @@ to gravityRules
   [
     ask players 
   [
-   ifelse [pcolor] of patch-left-and-ahead 90 1 = white
+   ifelse [pcolor] of patch-left-and-ahead 90 1 = white 
     [
       
     ]
@@ -55,7 +56,7 @@ to gravityRules
   [
   ask turtles 
   [
-   ifelse [pcolor] of patch-right-and-ahead 90 1 = white
+   ifelse [pcolor] of patch-right-and-ahead 90 1 = white 
     [
       
     ]
@@ -103,14 +104,13 @@ to LevelProgression
       if levelNumber = -1
   [
     ask players [die]
-
     import-pcolors "TitleScreen.png"
     PlayerSetup
     set levelNumber -.5
   ]
     if levelNumber = 0
     [
-      ; Help Screen. Turns out plabels are a pain in the ass to export/import
+      ; Help Screen. Turns out plabels are a pain in the ass to export/import, so I just did it manually
       ask players [die]
       import-pcolors "HelpScreen.png"
       ask patch 13 0 [ set plabel "Hold mouse to double jump"]
@@ -120,7 +120,37 @@ to LevelProgression
       ask patch 14 -15 [ set plabel "Press E to Jump Right"]
       PlayerSetup
       set levelNumber .5
+     
+      
     ]
+    
+    if levelNumber = .5
+     ; Second part of the help screen. Once you go to the end of the window, it loads the next part
+    [
+      if [xcor] of players = 16
+      [
+       
+        ask players [die]
+       
+      import-pcolors "HelpScreen2.png"
+        ask patch 2 -8 [ set plabel "Lava hurts. Don't get burned!"]
+        ask patch 9 10 [ set plabel "do a super duper jump" ]
+        ask patch 9 11 [ set plabel "on a yellow patch, you'll"] 
+        ask patch 9 12 [ set plabel "If you hold down your mouse"]
+        ask patch -6 14 [ set plabel "Often there's more than" ]
+        ask patch -6 13 [ set plabel "one way to get to the" ]
+        ask patch -6 12 [ set plabel "end. Choose wisely" ]
+        ask patch -15 -14 [ sprout-players 1
+                   [ 
+                     set color orange
+                     set shape "person"
+                     set heading 90
+                     set size 1
+                   ]
+        ]
+      ]
+    ]
+    
   if levelNumber = 1
   [
     ; Level 1, designed by Nicholas Yang
@@ -190,6 +220,25 @@ end
 to jumpright
   ; Jumping right. Very basic, need to use ticks to make it more smooth. 
   ; If you hold down your mouse, you do a super jump (2 up and 2 across). Way easier than velocity.
+  ; If you're on a yellow patch and holding down your mouse, you do a super duper jump (3 up and 3 across).
+  ifelse [pcolor] of patch-here = yellow
+  [ifelse mouse-down?
+    [  
+      ask players [set ycor ycor + 1] 
+      moveright 
+      ask players [set ycor ycor + 1]
+      moveright
+      ask players [set ycor ycor + 1]
+      moveright
+    ]
+    [
+        ask players [set ycor ycor + 1] 
+        moveright 
+        ask players [set ycor ycor + 1]
+        moveright
+    ]
+  ]
+  [
   ifelse mouse-down?
   [
   ask players [set ycor ycor + 1] 
@@ -200,6 +249,7 @@ to jumpright
   [
   ask players [set ycor ycor + 1] 
   moveright 
+  ]
   ]
 end
 to jumpleft
@@ -221,16 +271,8 @@ end
 
 to fuck
   ; Fuck, you're dead. Now go get reincarnated you incompetent fucker. Seriously gotta remove these comments before Platek sees this code
-  ask players [ die]
-  ask patch -15 -14 [
-                   sprout-players 1
-                   [ 
-                     set color red
-                     set shape "person"
-                     set heading 90
-                     set size 1
-                   ]
-  ]
+set levelNumber levelNumber - 0.5
+  
   end
 ; Just to create/sketch out levels
 
@@ -262,6 +304,10 @@ end
 to paintRed
   if mouse-down?
   [ask patch mouse-xcor mouse-ycor [set pcolor red]]
+end
+to paintYellow
+  if mouse-down?
+  [ask patch mouse-xcor mouse-ycor [set pcolor yellow]]
 end
 
 @#$#@#$#@
@@ -540,6 +586,23 @@ levelNumber
 17
 1
 11
+
+BUTTON
+830
+200
+932
+233
+NIL
+paintYellow
+T
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
 
 @#$#@#$#@
 ## WHAT IS IT?
