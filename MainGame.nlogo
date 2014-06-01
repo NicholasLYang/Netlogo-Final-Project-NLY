@@ -3,11 +3,11 @@ globals [amountOfJumps levelNumber]
 breed [players player]
 to Start
 reset-ticks
-set levelNumber 0
+set levelNumber -1
 end
 
 to PlayerSetup
-
+; sets up player on red "door" patch
 ask patch -15 -14 [
                    set pcolor red
                    sprout-players 1
@@ -25,7 +25,16 @@ to clear
   ca
 end
 to gameRules
-  ; Gravity rules. DON'T CHANGE
+gravityRules
+Walls
+Lava
+LevelProgression
+end
+
+
+to gravityRules
+  ; If the turtle is facing to the left, it makes sure that there's a block on its left (aka downward). If there is, it stays put. 
+  ; Else it moves "downward" and then orients itself back to the left
   ifelse [heading] of turtles = 270
   [
     ask players 
@@ -41,7 +50,7 @@ to gameRules
     rt 90
     ]
   ] 
-     
+     ; Likewise, this does the samething except if the turtle is facing right.
   ]
   [
   ask turtles 
@@ -56,23 +65,32 @@ to gameRules
     lt 90
     ]
   ]
-  ; Walls
   ]
+end
+  to walls
+    ; Makes sure players can't go through walls. I tried various routes, this worked the best. Though there could be flickering on the player momentarily being on the white block. 
+    ; Not much I could do about that, as netlogo doesn't allow for turtles to ignore commands. 
     ask players
   [
   if [pcolor] of patch-here = white
   [
     bk 1
   ]
-; Lava
   ]
+end
+to Lava
+  ; Pretty self explanatory. Probably should change the name of the death command if Platek asks us for the code.   
   ask players
   [ if [pcolor] of patch-here = orange
     [
       fuck
     ]
   ]
-  ; Allows for progression through level
+end
+to LevelProgression
+  ; Allows for progression through levels by changing the global variable levelNumber. Basically every time the player touches a red door, it raises the level number by half a point. 
+  ; This "warps" the player into the next level. However, it also sets the level number to a constant number, so that it doesn't continue to raise the level number as the player is standing on the door. 
+  ; If this doesn't make sense, I can explain more. 
   ask players
   [
     if [pcolor] of patch-here = green
@@ -82,8 +100,17 @@ to gameRules
       die
     ]
   ]
-    if levelNumber = -1
+      if levelNumber = -1
+  [
+    ask players [die]
+
+    import-pcolors "TitleScreen.png"
+    PlayerSetup
+    set levelNumber -.5
+  ]
+    if levelNumber = 0
     [
+      ; Help Screen. Turns out plabels are a pain in the ass to export/import
       ask players [die]
       import-pcolors "HelpScreen.png"
       ask patch 13 0 [ set plabel "Hold mouse to double jump"]
@@ -92,29 +119,32 @@ to gameRules
       ask patch -8 -9 [ set plabel "Press D to Move Right"]
       ask patch 14 -15 [ set plabel "Press E to Jump Right"]
       PlayerSetup
-      set levelNumber -.5
+      set levelNumber .5
     ]
-    if levelNumber = 0
-  [
-    ask players [die]
-    ask patches [set plabel ""]
-    import-pcolors "TitleScreen.png"
-    PlayerSetup
-    set levelNumber .5
-  ]
   if levelNumber = 1
   [
+    ; Level 1, designed by Nicholas Yang
     ask players [die]
+    ask patches [ set plabel ""]
     import-pcolors "Level1.png"
     PlayerSetup
     set levelNumber 1.5
   ]
+  if levelNumber = 2
+  [
+    ; Level 2, designed by Mohammed Shium
+    ask players [die]
+    import-pcolors "Level2.png"
+    PlayerSetup
+    set levelNumber 2.5
+  ]
 
-  
 end
 to moveLeft
   ask players
   [  
+    ; I decided against just making it so the player faces one and only one direction because it made jumping and potentially velocity a pain in the ass. 
+    ; Also makes walls easier to deal with
     set heading 270
     ifelse [pcolor] of patch-ahead 1 = white
     [
@@ -145,25 +175,21 @@ to moveRight
 
 end
 
-to setup
-  import-pcolors "Level1.png"
-  PlayerSetup
- ; OriginalSetup
- ; blocks 
-end
-to blocks 
-  ask patches with [pxcor > -5 and pxcor < 5 and pycor >= -15 and pycor <= -14 ] [set pcolor white] 
-ask patches with [pxcor > -4 and pxcor < 5 and pycor >= -15 and pycor <= -13 ] [set pcolor white]
-ask patches with [pxcor > -3 and pxcor < 5 and pycor >= -15 and pycor <= -12 ] [set pcolor white]
-ask patches with [pxcor > -2 and pxcor < 5 and pycor >= -15 and pycor <= -11 ] [set pcolor white]
-ask patches with [pxcor = 6 and pycor < -9] [set pcolor white] 
-ask patches with [pxcor = 8 and pycor < -8] [set pcolor white]
-ask patches with [pxcor = 10 and pycor < -7] [set pcolor white]
-ask patches with [pxcor > 11 and pycor =  -7] [set pcolor white]
-ask patches with [pxcor < 11 and pycor =  -5] [set pcolor white]
-end
+;to blocks 
+;  ask patches with [pxcor > -5 and pxcor < 5 and pycor >= -15 and pycor <= -14 ] [set pcolor white] 
+;ask patches with [pxcor > -4 and pxcor < 5 and pycor >= -15 and pycor <= -13 ] [set pcolor white]
+;ask patches with [pxcor > -3 and pxcor < 5 and pycor >= -15 and pycor <= -12 ] [set pcolor white]
+;ask patches with [pxcor > -2 and pxcor < 5 and pycor >= -15 and pycor <= -11 ] [set pcolor white]
+;ask patches with [pxcor = 6 and pycor < -9] [set pcolor white] 
+;ask patches with [pxcor = 8 and pycor < -8] [set pcolor white]
+;ask patches with [pxcor = 10 and pycor < -7] [set pcolor white]
+;ask patches with [pxcor > 11 and pycor =  -7] [set pcolor white]
+;ask patches with [pxcor < 11 and pycor =  -5] [set pcolor white]
+;end
 
 to jumpright
+  ; Jumping right. Very basic, need to use ticks to make it more smooth. 
+  ; If you hold down your mouse, you do a super jump (2 up and 2 across). Way easier than velocity.
   ifelse mouse-down?
   [
   ask players [set ycor ycor + 1] 
@@ -176,13 +202,8 @@ to jumpright
   moveright 
   ]
 end
-to superjumpright
-
-  ask players [set ycor ycor + 1] 
-  moveright 
-  moveright
-end
 to jumpleft
+  ; Same thing as jumping left. 
    ifelse mouse-down?
   [
   ask players [set ycor ycor + 1] 
@@ -195,32 +216,23 @@ to jumpleft
   moveleft
   ]
 end
-to superjumpleft
-  ask players [set ycor ycor + 1] 
-  moveleft
-  moveleft
-end
+
 
 
 to fuck
+  ; Fuck, you're dead. Now go get reincarnated you incompetent fucker. Seriously gotta remove these comments before Platek sees this code
   ask players [ die]
   ask patch -15 -14 [
                    sprout-players 1
                    [ 
-                     set color orange
+                     set color red
                      set shape "person"
                      set heading 90
                      set size 1
                    ]
   ]
   end
-;Already done in the program physics
-;to gravity
-  ;must always be on
-;  ask turtles with [ pcolor = lime] [ set ycor ycor - 1]
- ; easy fix, i'll do it later
-  
-;end
+; Just to create/sketch out levels
 
 to paintBlue
   if mouse-down?
@@ -251,10 +263,7 @@ to paintRed
   if mouse-down?
   [ask patch mouse-xcor mouse-ycor [set pcolor red]]
 end
-to help
-  set levelNumber -1
-  
-end
+
 @#$#@#$#@
 GRAPHICS-WINDOW
 210
@@ -330,23 +339,6 @@ T
 OBSERVER
 NIL
 A
-NIL
-NIL
-1
-
-BUTTON
-65
-267
-135
-300
-NIL
-setup
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
 NIL
 NIL
 1
@@ -454,23 +446,6 @@ NIL
 1
 
 BUTTON
-33
-433
-165
-466
-NIL
-ask players [die]
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-BUTTON
 89
 228
 198
@@ -565,23 +540,6 @@ levelNumber
 17
 1
 11
-
-BUTTON
-726
-160
-789
-193
-NIL
-help
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
 
 @#$#@#$#@
 ## WHAT IS IT?
