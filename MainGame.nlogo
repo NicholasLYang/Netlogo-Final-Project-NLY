@@ -10,7 +10,7 @@ end
 to PlayerSetup
 ; sets up player on red "door" patch
 ask patch -15 -14 [
-                   
+                   set pcolor red
                    sprout-players 1
                    [ 
                      set color orange
@@ -71,21 +71,21 @@ end
   to walls
     ; Makes sure players can't go through walls. I tried various routes, this worked the best. Though there could be flickering on the player momentarily being on the white block. 
     ; Not much I could do about that, as netlogo doesn't allow for turtles to ignore commands. 
-    ask players 
+    ask players
   [
   if [pcolor] of patch-here = white
   [
     bk 1
   ]
   ]
-
 end
 to Lava
   ; Pretty self explanatory. Probably should change the name of the death command if Platek asks us for the code.   
-  ask patches with [pcolor = orange]
-  [
-    ask turtles-here [die]
-    playerSetup
+  ask players
+  [ if [pcolor] of patch-here = orange
+    [
+      fuck
+    ]
   ]
 end
 to LevelProgression
@@ -94,7 +94,6 @@ to LevelProgression
   ; If this doesn't make sense, I can explain more. 
   ask players
   [
-    ; Basically once the player reaches the green door their level number increases. 
     if [pcolor] of patch-here = green
     [
       
@@ -102,8 +101,10 @@ to LevelProgression
       die
     ]
     if [pcolor] of patch-here = violet
-    [set levelNumber levelNumber + .1]
-    
+    [
+      set levelNumber levelNumber + .1
+      die
+    ]
   ]
       if levelNumber = -1.5
   [
@@ -128,15 +129,14 @@ to LevelProgression
       
     ]
     
-    if levelNumber = 0.1
-     ; Second part of the help screen. Once you go to the end of the window, it loads the next part. The violet door acts as a worp gate. This is a temporary fix until 
-     ; I can get the max-pxcor stuff fixed. 
+    if levelNumber = .1
+     ; Second part of the help screen. Once you go to the end of the window, it loads the next part
     [
-      set levelNumber 0.5
-        ask players [die]
-    
+      set levelNumber .5
+       
+        
+       ask patches [set plabel "
       import-pcolors "HelpScreen2.png"
-      ask patches [set plabel ""]
         ask patch 2 -8 [ set plabel "Lava hurts. Don't get burned!"]
         ask patch 9 10 [ set plabel "do a super duper jump" ]
         ask patch 9 11 [ set plabel "on a yellow patch, you'll"] 
@@ -153,7 +153,7 @@ to LevelProgression
                    ]
         ]
       ]
-
+    
     
   if levelNumber = 1
   [
@@ -228,83 +228,55 @@ to jumpright
   ifelse [pcolor] of patch-here = yellow
   [ifelse mouse-down?
     [  
-      set ycor ycor + 1
+      ask players [set ycor ycor + 1] 
       moveright 
-      set ycor ycor + 1
+      ask players [set ycor ycor + 1]
       moveright
-      set ycor ycor + 1
+      ask players [set ycor ycor + 1]
       moveright
-     
     ]
     [
-        set ycor ycor + 1
+        ask players [set ycor ycor + 1] 
         moveright 
-        set ycor ycor + 1
+        ask players [set ycor ycor + 1]
         moveright
-        
     ]
   ]
   [
   ifelse mouse-down?
   [
-  set ycor ycor + 1
+  ask players [set ycor ycor + 1] 
   moveright 
-  set ycor ycor + 1
+  ask players [set ycor ycor + 1]
   moveright
-
   ]
   [
-  set ycor ycor + 1
+  ask players [set ycor ycor + 1] 
   moveright 
-  
   ]
   ]
 end
 to jumpleft
-  ; Same thing as jumping right. 
-  ifelse [pcolor] of patch-here = yellow
-  [ifelse mouse-down?
-    [  
-      set ycor ycor + 1
-      moveleft 
-      set ycor ycor + 1
-      moveleft
-      set ycor ycor + 1
-      moveleft
-      
-    ]
-    [
-        set ycor ycor + 1
-        moveleft
-        set ycor ycor + 1
-        moveleft
-        
-    ]
+  ; Same thing as jumping left. 
+   ifelse mouse-down?
+  [
+  ask players [set ycor ycor + 1] 
+  moveleft
+  ask players [set ycor ycor + 1]
+  moveleft
   ]
   [
-  ifelse mouse-down?
-  [
-  set ycor ycor + 1
+  ask players [set ycor ycor + 1] 
   moveleft
-  set ycor ycor + 1
-  moveleft
-  
-  ]
-  [
-  set ycor ycor + 1
-  moveleft
-
-  ]
   ]
 end
 
 
 
 to fuck
-  ask patches [set plabel ""]
   ; Fuck, you're dead. Now go get reincarnated you incompetent fucker. Seriously gotta remove these comments before Platek sees this code
 set levelNumber levelNumber - 0.5
-
+  
   end
 ; Just to create/sketch out levels
 
@@ -341,11 +313,11 @@ to paintYellow
   if mouse-down?
   [ask patch mouse-xcor mouse-ycor [set pcolor yellow]]
 end
-
 to paintViolet
   if mouse-down?
   [ask patch mouse-xcor mouse-ycor [set pcolor violet]]
 end
+
 @#$#@#$#@
 GRAPHICS-WINDOW
 210
