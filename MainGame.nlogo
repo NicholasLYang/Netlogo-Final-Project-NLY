@@ -1,4 +1,4 @@
-globals [amountOfJumps levelNumber jumpDirection]
+globals [amountOfJumps levelNumber jumpDirection fallVelocity]
 ; Limits number of jumps per level
 breed [players player]
 to Start
@@ -9,7 +9,7 @@ end
 
 to PlayerSetup
 ; sets up player on red "door" patch
-ask patch -15 -14 [
+ask patch -15 -15 [
                    set pcolor red
                    sprout-players 1
                    [ 
@@ -29,6 +29,7 @@ to gameRules
 gravityRules
 Walls
 Lava
+helpScreenMonitors
 LevelProgression
 end
 
@@ -41,28 +42,33 @@ to gravityRules
   [
    ifelse [pcolor] of patch-left-and-ahead 90 1 = white 
     [
-      
+     if fallVelocity >= fallHeight [fuck] 
+     set fallVelocity 0
     ]
     
     [
     lt 90
     fd 1
-    rt 90
+    rt 90 
+    set fallVelocity fallVelocity + 1
     ]
   ] 
      ; Likewise, this does the samething except if the turtle is facing right.
   
-  
+  ; Added a gravity monitor. Basically every time that the turtle falls, one is added to the velocity (not realistic, but who cares)
+  ; When the turtle "hits" the ground, the velocity is compared to the fallHeight variable. If it's larger than the fallHeight, the turtle dies
   ask turtles with [heading = 90] 
   [
    ifelse [pcolor] of patch-right-and-ahead 90 1 = white 
     [
-      
+      if fallVelocity >= fallHeight [fuck] 
+      set fallVelocity 0      
     ]
     [
     rt 90
     fd 1
     lt 90
+    set fallVelocity fallVelocity + 1
     ]
   ]
   
@@ -86,6 +92,11 @@ to Lava
       fuck
     ]
   ]
+end
+to helpScreenMonitors
+  ; Every time a player reaches a certain patch, a help monitor turns on. 
+  if levelNumber = 0 and any? turtles-on patch 2 -15
+  [ ask patch 14 -15 [ set plabel "Press E to Jump Right"] ]
 end
 to LevelProgression
   ; Allows for progression through levels by changing the global variable levelNumber. Basically every time the player touches a red door, it raises the level number by half a point. 
@@ -115,13 +126,13 @@ to LevelProgression
     if levelNumber = -.5
     [
       ; Help Screen. Turns out plabels are a pain in the ass to export/import, so I just did it manually
+      ask patches [set plabel ""]
       ask players [die]
       import-pcolors "HelpScreen.png"
       ask patch 13 0 [ set plabel "Hold mouse to double jump"]
       ask patch 13 -6 [ set plabel "Press Q to Jump Left"  ]
       ask patch 0 -2 [ set plabel "Press A to Move Left" ] 
       ask patch -8 -9 [ set plabel "Press D to Move Right"]
-      ask patch 14 -15 [ set plabel "Press E to Jump Right"]
       PlayerSetup
       set levelNumber 0
      
@@ -231,22 +242,22 @@ to jumpright
     [  
       set heading 45
       if [pcolor] of patch-ahead 0 = white []   
-      set xcor xcor + 1
       set ycor ycor + 1
+      set xcor xcor + 1
       if [pcolor] of patch-ahead 0 = white
       [
-        set xcor xcor + 1
         set ycor ycor - 1
+        set xcor xcor + 1
         set heading 90]
-      set xcor xcor + 1
       set ycor ycor + 1
+      set xcor xcor + 1
       if [pcolor] of patch-ahead 0 = white
       [
-        set xcor xcor + 1
         set ycor ycor - 1
+        set xcor xcor + 1
         set heading 90]
+      set ycor ycor - 1
       set xcor xcor + 1
-      set ycor ycor + 1
     
       set heading 90
       
@@ -254,15 +265,15 @@ to jumpright
     [
         set heading 45
         if [pcolor] of patch-ahead 0 = white []
-        set xcor xcor + 1
         set ycor ycor + 1
+        set xcor xcor + 1
         if [pcolor] of patch-ahead 0 = white
         [
-          set xcor xcor + 1
           set ycor ycor - 1
+          set xcor xcor + 1
           set heading 90]
-        set xcor xcor + 1
         set ycor ycor + 1
+        set xcor xcor + 1
         set heading 90
     ]
   ]
@@ -271,15 +282,15 @@ to jumpright
   [
       set heading 45
         if [pcolor] of patch-ahead 0 = white []
-        set xcor xcor + 1
         set ycor ycor + 1
+        set xcor xcor + 1
         if [pcolor] of patch-ahead 0 = white
         [
-          set xcor xcor + 1
           set ycor ycor - 1
+          set xcor xcor + 1
           set heading 90]
-        set xcor xcor + 1
         set ycor ycor + 1
+        set xcor xcor + 1
         set heading 90
     
     
@@ -287,8 +298,8 @@ to jumpright
   [
   set heading 45
   if [pcolor] of patch-ahead 0 = white []
-  set xcor xcor + 1
   set ycor ycor + 1
+  set xcor xcor + 1
   set heading 90
   ]
   ]
@@ -300,39 +311,39 @@ to jumpleft
   [ifelse mouse-down?
     [  
       set heading 315
-      if [pcolor] of patch-ahead 0 = white []   
+      if [pcolor] of patch-ahead 0 = white []  
+      set ycor ycor + 1 
       set xcor xcor - 1
-      set ycor ycor + 1
       if [pcolor] of patch-ahead 0 = white
       [
-      set xcor xcor - 1
       set ycor ycor - 1
-      set heading 270]
       set xcor xcor - 1
+      set heading 270]
       set ycor ycor + 1
+      set xcor xcor - 1
       if [pcolor] of patch-ahead 0 = white
       [
-      set xcor xcor - 2
       set ycor ycor - 2
+      set xcor xcor - 2
       set heading 270]
-      set xcor xcor - 1
       set ycor ycor + 1
+      set xcor xcor - 1
       set heading 270
       
     ]
     [
         set heading 315
         if [pcolor] of patch-ahead 0 = white []
-        set xcor xcor - 1
         set ycor ycor + 1
+        set xcor xcor - 1
         if [pcolor] of patch-ahead 0 = white
         [
-          set xcor xcor - 1
           set ycor ycor - 1
+          set xcor xcor - 1
           set heading 270
           ]
-        set xcor xcor - 1
         set ycor ycor + 1
+        set xcor xcor - 1
        
         set heading 270
     ]
@@ -362,8 +373,8 @@ to jumpleft
   [
   set heading 315
   if [pcolor] of patch-ahead 0 = white []
-  set xcor xcor - 1
   set ycor ycor + 1
+  set xcor xcor - 1
   set heading 270
 
   ]
@@ -373,6 +384,7 @@ end
 
 
 to fuck
+  
   ; Fuck, you're dead. Now go get reincarnated you incompetent fucker. Seriously gotta remove these comments before Platek sees this code
 set levelNumber levelNumber - 0.5
   
@@ -726,6 +738,32 @@ NIL
 NIL
 NIL
 1
+
+SLIDER
+24
+103
+196
+136
+fallHeight
+fallHeight
+0
+10
+5
+1
+1
+NIL
+HORIZONTAL
+
+MONITOR
+120
+253
+200
+298
+NIL
+fallVelocity
+17
+1
+11
 
 @#$#@#$#@
 ## WHAT IS IT?
