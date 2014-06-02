@@ -1,4 +1,4 @@
-globals [amountOfJumps levelNumber]
+globals [amountOfJumps levelNumber jumpDirection]
 ; Limits number of jumps per level
 breed [players player]
 to Start
@@ -36,9 +36,8 @@ end
 to gravityRules
   ; If the turtle is facing to the left, it makes sure that there's a block on its left (aka downward). If there is, it stays put. 
   ; Else it moves "downward" and then orients itself back to the left
-  ifelse [heading] of turtles = 270
-  [
-    ask players 
+ 
+    ask players with [heading = 270] 
   [
    ifelse [pcolor] of patch-left-and-ahead 90 1 = white 
     [
@@ -52,9 +51,9 @@ to gravityRules
     ]
   ] 
      ; Likewise, this does the samething except if the turtle is facing right.
-  ]
-  [
-  ask turtles 
+  
+  
+  ask turtles with [heading = 90] 
   [
    ifelse [pcolor] of patch-right-and-ahead 90 1 = white 
     [
@@ -66,7 +65,7 @@ to gravityRules
     lt 90
     ]
   ]
-  ]
+  
 end
   to walls
     ; Makes sure players can't go through walls. I tried various routes, this worked the best. Though there could be flickering on the player momentarily being on the white block. 
@@ -135,7 +134,7 @@ to LevelProgression
       set levelNumber .5
        
         
-       ask patches [set plabel "
+       ask patches [set plabel ""]
       import-pcolors "HelpScreen2.png"
         ask patch 2 -8 [ set plabel "Lava hurts. Don't get burned!"]
         ask patch 9 10 [ set plabel "do a super duper jump" ]
@@ -225,49 +224,149 @@ to jumpright
   ; Jumping right. Very basic, need to use ticks to make it more smooth. 
   ; If you hold down your mouse, you do a super jump (2 up and 2 across). Way easier than velocity.
   ; If you're on a yellow patch and holding down your mouse, you do a super duper jump (3 up and 3 across).
-  ifelse [pcolor] of patch-here = yellow
+  ; This doesn't work, because for some reason netlogo doesn't calculate sqrt 2 properly. Will fix soon
+  ; Basically need to make it so the turtle, if it hits a wall, rebounds instead of just falling directly down
+ ifelse [pcolor] of patch-here = yellow
   [ifelse mouse-down?
     [  
-      ask players [set ycor ycor + 1] 
-      moveright 
-      ask players [set ycor ycor + 1]
-      moveright
-      ask players [set ycor ycor + 1]
-      moveright
+      set heading 45
+      if [pcolor] of patch-ahead 0 = white []   
+      set xcor xcor + 1
+      set ycor ycor + 1
+      if [pcolor] of patch-ahead 0 = white
+      [
+        set xcor xcor + 1
+        set ycor ycor - 1
+        set heading 90]
+      set xcor xcor + 1
+      set ycor ycor + 1
+      if [pcolor] of patch-ahead 0 = white
+      [
+        set xcor xcor + 1
+        set ycor ycor - 1
+        set heading 90]
+      set xcor xcor + 1
+      set ycor ycor + 1
+    
+      set heading 90
+      
     ]
     [
-        ask players [set ycor ycor + 1] 
-        moveright 
-        ask players [set ycor ycor + 1]
-        moveright
+        set heading 45
+        if [pcolor] of patch-ahead 0 = white []
+        set xcor xcor + 1
+        set ycor ycor + 1
+        if [pcolor] of patch-ahead 0 = white
+        [
+          set xcor xcor + 1
+          set ycor ycor - 1
+          set heading 90]
+        set xcor xcor + 1
+        set ycor ycor + 1
+        set heading 90
     ]
   ]
   [
   ifelse mouse-down?
   [
-  ask players [set ycor ycor + 1] 
-  moveright 
-  ask players [set ycor ycor + 1]
-  moveright
+      set heading 45
+        if [pcolor] of patch-ahead 0 = white []
+        set xcor xcor + 1
+        set ycor ycor + 1
+        if [pcolor] of patch-ahead 0 = white
+        [
+          set xcor xcor + 1
+          set ycor ycor - 1
+          set heading 90]
+        set xcor xcor + 1
+        set ycor ycor + 1
+        set heading 90
+    
+    
   ]
   [
-  ask players [set ycor ycor + 1] 
-  moveright 
+  set heading 45
+  if [pcolor] of patch-ahead 0 = white []
+  set xcor xcor + 1
+  set ycor ycor + 1
+  set heading 90
   ]
   ]
 end
+
 to jumpleft
-  ; Same thing as jumping left. 
-   ifelse mouse-down?
-  [
-  ask players [set ycor ycor + 1] 
-  moveleft
-  ask players [set ycor ycor + 1]
-  moveleft
+  ; Same thing as jumping right. 
+ ifelse [pcolor] of patch-here = yellow
+  [ifelse mouse-down?
+    [  
+      set heading 315
+      if [pcolor] of patch-ahead 0 = white []   
+      set xcor xcor - 1
+      set ycor ycor + 1
+      if [pcolor] of patch-ahead 0 = white
+      [
+      set xcor xcor - 1
+      set ycor ycor - 1
+      set heading 270]
+      set xcor xcor - 1
+      set ycor ycor + 1
+      if [pcolor] of patch-ahead 0 = white
+      [
+      set xcor xcor - 2
+      set ycor ycor - 2
+      set heading 270]
+      set xcor xcor - 1
+      set ycor ycor + 1
+      set heading 270
+      
+    ]
+    [
+        set heading 315
+        if [pcolor] of patch-ahead 0 = white []
+        set xcor xcor - 1
+        set ycor ycor + 1
+        if [pcolor] of patch-ahead 0 = white
+        [
+          set xcor xcor - 1
+          set ycor ycor - 1
+          set heading 270
+          ]
+        set xcor xcor - 1
+        set ycor ycor + 1
+       
+        set heading 270
+    ]
   ]
   [
-  ask players [set ycor ycor + 1] 
-  moveleft
+  ifelse mouse-down?
+  [
+      set heading 315
+        if [pcolor] of patch-ahead 0 = white []
+        set ycor ycor + 1
+        set xcor xcor - 1
+       
+        if [pcolor] of patch-ahead 0 = white
+        [
+          set ycor ycor - 1
+          set xcor xcor - 1
+          set heading 270]
+        set ycor ycor + 1
+        set xcor xcor - 1
+        
+       
+     
+        set heading 270
+    
+    
+  ]
+  [
+  set heading 315
+  if [pcolor] of patch-ahead 0 = white []
+  set xcor xcor - 1
+  set ycor ycor + 1
+  set heading 270
+
+  ]
   ]
 end
 
@@ -317,7 +416,6 @@ to paintViolet
   if mouse-down?
   [ask patch mouse-xcor mouse-ycor [set pcolor violet]]
 end
-
 @#$#@#$#@
 GRAPHICS-WINDOW
 210
