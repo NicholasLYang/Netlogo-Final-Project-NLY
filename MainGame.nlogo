@@ -9,7 +9,7 @@ end
 
 to PlayerSetup
 ; sets up player on red "door" patch
-ask patch -15 -15 [
+ask patch -15 -14 [
                    set pcolor red
                    sprout-players 1
                    [ 
@@ -42,7 +42,7 @@ to gravityRules
   [
    ifelse [pcolor] of patch-left-and-ahead 90 1 = white 
     [
-     if fallVelocity >= fallHeight [fuck] 
+     if fallVelocity >= fallHeight [die PlayerSetup] 
      set fallVelocity 0
     ]
     
@@ -61,7 +61,7 @@ to gravityRules
   [
    ifelse [pcolor] of patch-right-and-ahead 90 1 = white 
     [
-      if fallVelocity >= fallHeight [fuck] 
+      if fallVelocity >= fallHeight [die PlayerSetup] 
       set fallVelocity 0      
     ]
     [
@@ -89,14 +89,28 @@ to Lava
   ask players
   [ if [pcolor] of patch-here = orange
     [
-      fuck
+      die
+      PlayerSetup
     ]
   ]
 end
 to helpScreenMonitors
   ; Every time a player reaches a certain patch, a help monitor turns on. 
-  if levelNumber = 0 and any? turtles-on patch 2 -15
+  if levelNumber = -1
+  [ask patch -7 -9 [ set plabel "Press D to Move Right"]]
+  if levelNumber = 0 
+  [ 
+    if any? turtles-on patch 2 -15
   [ ask patch 14 -15 [ set plabel "Press E to Jump Right"] ]
+    if any? turtles-on patch 15 -10
+  [ask patch 13 -6 [ set plabel "Press Q to Jump Left"  ]
+   ask patch 13 0 [ set plabel "Hold mouse to double jump"]]
+    if any? turtles-on patch 13 -9
+   [ask patch 0 -2 [ set plabel "Press A to Move Left" ] ]
+    
+  
+  ]
+  
 end
 to LevelProgression
   ; Allows for progression through levels by changing the global variable levelNumber. Basically every time the player touches a red door, it raises the level number by half a point. 
@@ -129,10 +143,10 @@ to LevelProgression
       ask patches [set plabel ""]
       ask players [die]
       import-pcolors "HelpScreen.png"
-      ask patch 13 0 [ set plabel "Hold mouse to double jump"]
-      ask patch 13 -6 [ set plabel "Press Q to Jump Left"  ]
-      ask patch 0 -2 [ set plabel "Press A to Move Left" ] 
-      ask patch -8 -9 [ set plabel "Press D to Move Right"]
+      
+
+      
+  
       PlayerSetup
       set levelNumber 0
      
@@ -384,6 +398,7 @@ end
 
 
 to fuck
+  ask patches [set plabel ""]
   
   ; Fuck, you're dead. Now go get reincarnated you incompetent fucker. Seriously gotta remove these comments before Platek sees this code
 set levelNumber levelNumber - 0.5
@@ -748,7 +763,7 @@ fallHeight
 fallHeight
 0
 10
-5
+7
 1
 1
 NIL
