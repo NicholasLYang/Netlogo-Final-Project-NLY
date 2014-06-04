@@ -85,12 +85,22 @@ end
   ]
 end
 to Lava
-  ; Pretty self explanatory. Probably should change the name of the death command if Platek asks us for the code.   
+  ; Pretty self explanatory. Lava hurts 
   ask players
   [ if [pcolor] of patch-here = orange
     [
       die
       PlayerSetup
+    ]
+  ]
+end
+to darkness
+  if levelNumber = 1.5
+  [
+    import-pcolors "level1.png"
+    ask players 
+    [
+    ask patches with (distancexy xcor ycor > 25) [set pcolor black]
     ]
   ]
 end
