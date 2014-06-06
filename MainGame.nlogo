@@ -273,12 +273,12 @@ to LevelProgression
     set levelNumber 2.5
     set countJumps? true
     darkness
-        ifelse difficultyLevel = 0
+        ifelse difficultyLevel = "Easy"
       [
         set amountOfJumps 110
       ]
       [        
-        ifelse difficultyLevel = 1
+        ifelse difficultyLevel = "Medium"
         [
           set amountOfJumps 106
         ]
@@ -967,8 +967,8 @@ CHOOSER
 466
 DifficultyLevel
 DifficultyLevel
-0 1 2
-2
+"Easy" "Medium" "Hard"
+0
 
 BUTTON
 82
