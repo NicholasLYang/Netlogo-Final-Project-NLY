@@ -1,4 +1,4 @@
-globals [amountOfJumps levelNumber jumpDirection fallVelocity centerOfLightX centerOfLightY calcDarkness]
+globals [amountOfJumps levelNumber jumpDirection fallVelocity centerOfLightX centerOfLightY calcDarkness calcDarkness2]
 ; Limits number of jumps per level
 breed [players player]
 to Start
@@ -6,6 +6,7 @@ to Start
 reset-ticks
 set levelNumber -1.5
 set calcDarkness false
+set calcDarkness2 false
 end
 to PlayerSetup
 ; sets up player on red "door" patch
@@ -18,12 +19,14 @@ ask patch -15 -14 [
                      set heading 90
                      set size 1
                    ]
+                   set amountOfJumps 100
                   ]
- 
-  
+
+
 end
 to totalSetup
   PlayerSetup
+  
   darkness
 end
  
@@ -36,7 +39,6 @@ Walls
 Lava
 helpScreenMonitors
 LevelProgression
-displayAmountOfJumps
 end
 
 to displayAmountOfJumps
@@ -50,7 +52,7 @@ to gravityRules
  
     ask players with [heading = 270] 
   [
-   ifelse [pcolor] of patch-left-and-ahead 90 1 = white 
+   ifelse [pcolor] of patch-left-and-ahead 90 1 = white
     [
      if fallVelocity >= fallHeight [die PlayerSetup] 
      set fallVelocity 0
@@ -61,6 +63,7 @@ to gravityRules
     fd 1
     rt 90 
     set fallVelocity fallVelocity + 1
+    set calcDarkness true
     ]
   ] 
      ; Likewise, this does the samething except if the turtle is facing right.
@@ -107,9 +110,17 @@ to Lava
   [ if [pcolor] of patch-here = orange
     [
       die
-      PlayerSetup
+     ask patches [set pcolor black]
+     playerSetup
+     set calcDarkness2 true
     ]
   ]
+  if calcDarkness2
+  [
+    set calcDarkness2 false
+    darkness
+  ]
+
 end
 to darkness
   if levelNumber = 1.5
@@ -119,7 +130,8 @@ to darkness
     [
       set centerOfLightX xcor
       set centerofLightY ycor
-    ask patches with [distancexy centerOfLightX centerOfLightY > 4] [set pcolor black]
+ask patches with [distancexy centerOfLightX centerOfLightY >= 6] [set pcolor black]
+    ask patches with [distancexy centerOfLightX centerOfLightY > 5 and distancexy centerOfLightX centerOfLightY < 6] [set pcolor pcolor - 3]
 
     ]
   ]
@@ -130,7 +142,8 @@ to darkness
     [
       set centerOfLightX xcor
       set centerofLightY ycor
-    ask patches with [distancexy centerOfLightX centerOfLightY > 4] [set pcolor black]
+    ask patches with [distancexy centerOfLightX centerOfLightY >= 6] [set pcolor black]
+    ask patches with [distancexy centerOfLightX centerOfLightY > 4 and distancexy centerOfLightX centerOfLightY < 6] [set pcolor pcolor - 3]
     
     ]
   ]
@@ -236,6 +249,7 @@ to LevelProgression
         ]
         [set amountOfJumps 23]
       ]
+      displayAmountOfJumps
   ]
   if levelNumber = 2
   [
@@ -297,7 +311,8 @@ end
 ;end
 
 to jumpright
-  if amountOfJumps = 0 []
+  ifelse amountOfJumps = 0 []
+  [
   ; Jumping right. Very basic, need to use ticks to make it more smooth. 
   ; If you hold down your mouse, you do a super jump (2 up and 2 across). Way easier than velocity.
   ; If you're on a yellow patch and holding down your mouse, you do a super duper jump (3 up and 3 across).
@@ -386,13 +401,14 @@ to jumpright
   ]
   ]
 ]
-  
+  ]
   ; Every time that the player moves, darkness is calculated
   darkness
 end
 
 to jumpleft
   ; Same thing as jumping right. 
+  ifelse amountOfJumps = 0 [] [
   ask players
   [
  ifelse [pcolor] of patch-here = yellow
@@ -472,7 +488,10 @@ to jumpleft
   ]
   ]
   ]
+]
+
   darkness
+
 end
 
 
@@ -480,10 +499,11 @@ end
 to fuck
   ask players [die]
   ask patches [set plabel ""]
+  set fallVelocity 0
   
   ; Fuck, you're dead. Now go get reincarnated you incompetent fucker. Seriously gotta remove these comments before Platek sees this code
-set levelNumber levelNumber - 0.5
-  darkness
+playerSetup
+darkness
   end
 ; Just to create/sketch out levels
 
@@ -539,8 +559,8 @@ GRAPHICS-WINDOW
 1
 1
 0
-1
-1
+0
+0
 1
 -16
 16
@@ -887,6 +907,34 @@ DifficultyLevel
 DifficultyLevel
 0 1 2
 0
+
+BUTTON
+82
+451
+214
+484
+NIL
+set fallVelocity 0
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+MONITOR
+696
+153
+809
+198
+# of Jumps Left
+amountOfJumps
+17
+1
+11
 
 @#$#@#$#@
 ## WHAT IS IT?
