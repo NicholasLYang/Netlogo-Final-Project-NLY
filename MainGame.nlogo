@@ -1,4 +1,4 @@
-globals [amountOfJumps levelNumber jumpDirection fallVelocity centerOfLightX centerOfLightY calcDarkness calcDarkness2]
+globals [amountOfJumps levelNumber jumpDirection fallVelocity centerOfLightX centerOfLightY calcDarkness calcDarkness2 countJumps?]
 ; Limits number of jumps per level
 breed [players player]
 to Start
@@ -7,6 +7,7 @@ reset-ticks
 set levelNumber -1.5
 set calcDarkness false
 set calcDarkness2 false
+set countJumps? false
 end
 to PlayerSetup
 ; sets up player on red "door" patch
@@ -39,11 +40,15 @@ Walls
 Lava
 helpScreenMonitors
 LevelProgression
+displayAmountOfJumps
 end
 
 to displayAmountOfJumps
   ; displays amount of jumps left on upper left corner
+  if levelNumber = one-of [1.5 2.5]
+  [
   ask patch -15 15 [set plabel amountOfJumps]
+  ]
 end
   
 to gravityRules
@@ -178,11 +183,15 @@ to LevelProgression
       set levelNumber levelNumber + .5
       die
     ]
-    if [pcolor] of patch-here = violet
-    [
-      set levelNumber levelNumber + .1
-      die
-    ]
+   if any? turtles-on patch 16 3 
+      [
+        set levelNumber .1
+      ]
+ ;   if [pcolor] of patch-here = violet
+  ;  [
+  ;    set levelNumber levelNumber + .1
+  ;    die
+  ;  ]
   ]
       if levelNumber = -1.5
   [
@@ -190,16 +199,18 @@ to LevelProgression
     import-pcolors "TitleScreen.png"
     PlayerSetup
     set levelNumber -1
+    set countJumps? false
   ]
     if levelNumber = -.5
     [
-      ; Help Screen. Turns out plabels are a pain in the ass to export/import, so I just did it manually
+      ; Help Screen. 
       ask patches [set plabel ""]
       ask players [die]
       import-pcolors "HelpScreen.png"
-      
+      set countJumps? false
       PlayerSetup
       set levelNumber 0
+
      
       
     ]
@@ -218,6 +229,7 @@ to LevelProgression
         ask patch -6 14 [ set plabel "Often there's more than" ]
         ask patch -6 13 [ set plabel "one way to get to the" ]
         ask patch -6 12 [ set plabel "end. Choose wisely" ]
+        ; Had to setup players manually because this isn't a new level per se
         ask patch -15 -14 [ sprout-players 1
                    [ 
                      set color orange
@@ -237,6 +249,7 @@ to LevelProgression
     import-pcolors "Level1.png"
     PlayerSetup
     set levelNumber 1.5
+    set countJumps? true
     darkness
     ifelse difficultyLevel = 0
       [
@@ -258,7 +271,19 @@ to LevelProgression
     import-pcolors "Level2.png"
     PlayerSetup
     set levelNumber 2.5
+    set countJumps? true
     darkness
+        ifelse difficultyLevel = 0
+      [
+        set amountOfJumps 110
+      ]
+      [        
+        ifelse difficultyLevel = 1
+        [
+          set amountOfJumps 106
+        ]
+        [set amountOfJumps 102]
+      ]
   ]
 
 end
@@ -311,8 +336,7 @@ end
 ;end
 
 to jumpright
-  ifelse amountOfJumps = 0 []
-  [
+
   ; Jumping right. Very basic, need to use ticks to make it more smooth. 
   ; If you hold down your mouse, you do a super jump (2 up and 2 across). Way easier than velocity.
   ; If you're on a yellow patch and holding down your mouse, you do a super duper jump (3 up and 3 across).
@@ -320,12 +344,28 @@ to jumpright
   ; Basically need to make it so the turtle, if it hits a wall, rebounds instead of just falling directly down
   ; Also, amountOfJumps depends on the length of the jump. 
   ; I.e. a super jump takes two off of the counter, a normal jump takes one off of the counter, etc
+  ; Ugh, so getting amount of jumps working is not easy. I basically doubled the amount of code. Will simplify when I have the time
+      ifelse countJumps? 
+  [
+    ifelse amountOfJumps = 0 []
+    [  
+      jumpRightMovement
+      darkness
+    ]
+  ]
+  [
+    jumpRightMovement
+    darkness
+  ]
+ end
+ to jumpRightMovement
   ask players
   [
  ifelse [pcolor] of patch-here = yellow
-  [ifelse mouse-down?
+  [
+    ifelse mouse-down?
     [ 
-      if amountOfJumps < 3 []
+      if amountOfJumps < 3 [ ]
       set amountOfJumps amountOfJumps - 3
       set heading 45
       if [pcolor] of patch-ahead 0 = white []   
@@ -333,19 +373,19 @@ to jumpright
       set xcor xcor + 1
 
       if [pcolor] of patch-ahead 0 = white
-      [
+       [
         set ycor ycor - 1
         set xcor xcor + 1
         set heading 90
-      ]
+       ]
       set ycor ycor + 1
       set xcor xcor + 1
       if [pcolor] of patch-ahead 0 = white
-      [
+       [
         set ycor ycor - 1
         set xcor xcor + 1
         set heading 90
-      ]
+       ]
       set ycor ycor - 1
       set xcor xcor + 1
     
@@ -400,97 +440,119 @@ to jumpright
   set amountOfJumps amountOfJumps - 1
   ]
   ]
-]
-  ]
+
+  
   ; Every time that the player moves, darkness is calculated
-  darkness
+  
+ ]
+  
 end
 
-to jumpleft
-  ; Same thing as jumping right. 
-  ifelse amountOfJumps = 0 [] [
-  ask players
+
+to jumpLeft
+ ifelse countJumps? 
   [
- ifelse [pcolor] of patch-here = yellow
-  [ifelse mouse-down?
-    [  
-      set amountOfJumps amountOfJumps - 3
-      set heading 315
-      if [pcolor] of patch-ahead 0 = white []  
-      set ycor ycor + 1 
-      set xcor xcor - 1
-      if [pcolor] of patch-ahead 0 = white
-      [
-      set ycor ycor - 1
-      set xcor xcor - 1
-      set heading 270]
-      set ycor ycor + 1
-      set xcor xcor - 1
-      if [pcolor] of patch-ahead 0 = white
-      [
-      set ycor ycor - 2
-      set xcor xcor - 2
-      set heading 270]
-      set ycor ycor + 1
-      set xcor xcor - 1
-      set heading 270
+    ifelse amountOfJumps = 0 []
+    [
+        jumpLeftMovement
+        darkness
+    ]
+  ]
+  [
+    jumpLeftMovement
+    darkness
+  ]
+end
+
+
+
+
+to jumpLeftMovement
+   ifelse amountOfJumps = 0 [ ]
+    [
+      ask players
+        [
+          ifelse [pcolor] of patch-here = yellow
+           [
+            ifelse mouse-down?
+             [  
+               set amountOfJumps amountOfJumps - 3
+               set heading 315
+               if [pcolor] of patch-ahead 0 = white []  
+               set ycor ycor + 1 
+               set xcor xcor - 1
+               if [pcolor] of patch-ahead 0 = white
+                [
+                 set ycor ycor - 1
+                 set xcor xcor - 1
+                 set heading 270
+                ]
+              set ycor ycor + 1
+              set xcor xcor - 1
+              if [pcolor] of patch-ahead 0 = white
+              [
+                set ycor ycor - 2
+                set xcor xcor - 2
+                set heading 270]
+              set ycor ycor + 1
+              set xcor xcor - 1
+              set heading 270
+      
+             ]
+             [
+               set amountOfJumps amountOfJumps - 2
+               set heading 315
+               if [pcolor] of patch-ahead 0 = white []
+               set ycor ycor + 1
+               set xcor xcor - 1
+               if [pcolor] of patch-ahead 0 = white
+               [
+                 set ycor ycor - 1
+                 set xcor xcor - 1
+                 set heading 270
+          ]
+               set ycor ycor + 1
+               set xcor xcor - 1
+       
+               set heading 270
+             ]
+           ]
+           [
+             ifelse mouse-down?
+             [
+               set amountOfJumps amountOfJumps - 2
+               set heading 315
+               if [pcolor] of patch-ahead 0 = white []
+               set ycor ycor + 1
+               set xcor xcor - 1
+       
+               if [pcolor] of patch-ahead 0 = white
+               [
+                 set ycor ycor - 1
+                 set xcor xcor - 1
+                 set heading 270]
+               set ycor ycor + 1
+               set xcor xcor - 1  
+     
+               set heading 270
+    
+    
+             ]
+             [
+               set amountOfJumps amountOfJumps - 1
+               set heading 315
+               if [pcolor] of patch-ahead 0 = white []
+               set ycor ycor + 1
+               set xcor xcor - 1
+               set heading 270
+
+             ]
+           ]
+        ]
+
+
       
     ]
-    [
-        set amountOfJumps amountOfJumps - 2
-        set heading 315
-        if [pcolor] of patch-ahead 0 = white []
-        set ycor ycor + 1
-        set xcor xcor - 1
-        if [pcolor] of patch-ahead 0 = white
-        [
-          set ycor ycor - 1
-          set xcor xcor - 1
-          set heading 270
-          ]
-        set ycor ycor + 1
-        set xcor xcor - 1
-       
-        set heading 270
-    ]
-  ]
-  [
-  ifelse mouse-down?
-  [
-      set amountOfJumps amountOfJumps - 2
-      set heading 315
-        if [pcolor] of patch-ahead 0 = white []
-        set ycor ycor + 1
-        set xcor xcor - 1
-       
-        if [pcolor] of patch-ahead 0 = white
-        [
-          set ycor ycor - 1
-          set xcor xcor - 1
-          set heading 270]
-        set ycor ycor + 1
-        set xcor xcor - 1
-        
-       
-     
-        set heading 270
-    
-    
-  ]
-  [
-  set amountOfJumps amountOfJumps - 1
-  set heading 315
-  if [pcolor] of patch-ahead 0 = white []
-  set ycor ycor + 1
-  set xcor xcor - 1
-  set heading 270
-
-  ]
-  ]
-  ]
-]
-
-  darkness
 
 end
 
@@ -906,7 +968,7 @@ CHOOSER
 DifficultyLevel
 DifficultyLevel
 0 1 2
-0
+2
 
 BUTTON
 82
@@ -924,17 +986,6 @@ NIL
 NIL
 NIL
 1
-
-MONITOR
-696
-153
-809
-198
-# of Jumps Left
-amountOfJumps
-17
-1
-11
 
 @#$#@#$#@
 ## WHAT IS IT?
