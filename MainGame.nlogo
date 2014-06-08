@@ -55,7 +55,7 @@ to pressurePlate
   [
     if [pcolor] of patch-here = brown
     [
-      mock
+      if levelnumber = .5  [mock]
       ask patch-at 1 0 [set pcolor white]
       ask patch-at 1 1 [set pcolor white]
       ask patch-at 1 2 [set pcolor white]
@@ -276,9 +276,11 @@ to LevelProgression
     level2setup
   ]
   if levelNumber = 3
-  [ ;level 2 designed by Mohammed Shium
+  [ ;level 3 designed by Mohammed Shium
     level3setup]
-  
+  if levelNumber = 4
+  [ ;level 4 designed by Kevin Yan and Mohammed Shium
+    level4setup] 
 
 end
 to moveLeft
@@ -514,6 +516,21 @@ to level3setup
     PlayerSetup
     set levelNumber 3.5
 end
+to level4setup
+  ;level 4 designed by Kevin Yan and Mohammed Shium
+   ask players [die]
+   ask ghosts [die]
+    import-pcolors "Level4.png"
+    ask patches with [pcolor = violet]
+     [sprout 1 
+      [ set breed ghosts
+      set shape "ghost"
+      set color red
+      set heading 0
+      ]]
+     playersetup
+     set levelNumber 4.5
+end
 
 to jumpLeftMovement
       ask players
@@ -664,6 +681,9 @@ to setlevel2
 end
 to setlevel3
   set levelnumber 3
+end
+to setlevel4
+  set levelnumber 4
 end
 
 to shoot 
@@ -1236,6 +1256,23 @@ BUTTON
 NIL
 paintpink
 T
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+754
+287
+835
+320
+NIL
+setlevel4
+NIL
 1
 T
 OBSERVER
