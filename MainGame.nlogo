@@ -2,6 +2,7 @@ globals [amountOfJumps levelNumber jumpDirection fallVelocity centerOfLightX cen
 ; Limits number of jumps per level
 breed [players player]
 breed [ghosts ghost] 
+breed [bullets bullet]
 to Start
   ca
 reset-ticks
@@ -42,6 +43,8 @@ helpScreenMonitors
 LevelProgression
 displayAmountOfJumps
 pressurePlate
+bulletmovement
+bulletcollison
 end
 
 to pressurePlate
@@ -610,7 +613,7 @@ darkness
 to paintBlue
   if mouse-down?
   [
-    ask patch mouse-xcor mouse-ycor [set pcolor blue]]
+    ask patch mouse-xcor mouse-ycor [set pcolor 83]]
 end
 
 to paintWhite
@@ -648,11 +651,39 @@ to paintBrown
   if mouse-down?
   [ask patch mouse-xcor mouse-ycor [set pcolor brown]]
 end
+to paintpink
+  if mouse-down?
+  [ask patch mouse-xcor mouse-ycor [set pcolor pink]]
+end
 to setlevel2
   set levelNumber 2
 end
 to setlevel3
   set levelnumber 3
+end
+
+to shoot 
+  if mouse-down? 
+  [ask players [facexy mouse-xcor mouse-ycor]]
+    ask players
+    [hatch-bullets 1 [
+                       set shape "rocket"
+                         set color green
+                       set size  1 ;0.75
+                       
+                       fd 1
+                     ] ]
+end
+to bulletmovement 
+  ask bullets [fd  1]
+end     
+to bulletcollison
+  ask patches with [any? bullets-here and pcolor = white] [ask bullets-here [die]]
+  ask patches with [any? bullets-here and pcolor = orange][ask bullets-here [die]]
+  ask patches with [any? bullets-here and pcolor = green][ask bullets-here [die]]
+  ask patches with [any? bullets-here and pcolor = yellow][ask bullets-here [die]]
+  ask patches with [any? bullets-here and pcolor = pink][ask bullets-here [die] set pcolor 83]
+  ask ghosts with [any? bullets-here ][ask bullets-here [die] ask ghosts-here [die]]
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
@@ -1103,6 +1134,74 @@ NIL
 NIL
 1
 
+BUTTON
+718
+37
+799
+70
+NIL
+paintpink
+T
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+883
+344
+1006
+377
+NIL
+ask players [die]
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+891
+424
+1010
+457
+NIL
+ask ghosts [die]
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+60
+239
+123
+272
+NIL
+shoot
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
 @#$#@#$#@
 ## WHAT IS IT?
 
@@ -1340,6 +1439,20 @@ Polygon -7500403 true true 165 180 165 210 225 180 255 120 210 135
 Polygon -7500403 true true 135 105 90 60 45 45 75 105 135 135
 Polygon -7500403 true true 165 105 165 135 225 105 255 45 210 60
 Polygon -7500403 true true 135 90 120 45 150 15 180 45 165 90
+
+rocket
+true
+0
+Polygon -7500403 true true 120 165 75 285 135 255 165 255 225 285 180 165
+Polygon -1 true false 135 285 105 135 105 105 120 45 135 15 150 0 165 15 180 45 195 105 195 135 165 285
+Rectangle -7500403 true true 147 176 153 288
+Polygon -7500403 true true 120 45 180 45 165 15 150 0 135 15
+Line -7500403 true 105 105 135 120
+Line -7500403 true 135 120 165 120
+Line -7500403 true 165 120 195 105
+Line -7500403 true 105 135 135 150
+Line -7500403 true 135 150 165 150
+Line -7500403 true 165 150 195 135
 
 sheep
 false
