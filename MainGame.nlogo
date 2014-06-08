@@ -1,4 +1,4 @@
-globals [amountOfJumps levelNumber jumpDirection fallVelocity centerOfLightX centerOfLightY calcDarkness calcDarkness2 countJumps?]
+globals [amountOfJumps levelNumber jumpDirection fallVelocity centerOfLightX centerOfLightY calcDarkness lavaDeath countJumps?]
 ; Limits number of jumps per level
 breed [players player]
 to Start
@@ -6,13 +6,13 @@ to Start
 reset-ticks
 set levelNumber -1.5
 set calcDarkness false
-set calcDarkness2 false
+set lavaDeath false
 set countJumps? false
 end
 to PlayerSetup
 ; sets up player on red "door" patch
 ask patch -15 -14 [
-                   set pcolor red
+                   
                    sprout-players 1
                    [ 
                      set color orange
@@ -20,7 +20,6 @@ ask patch -15 -14 [
                      set heading 90
                      set size 1
                    ]
-                   set amountOfJumps 100
                   ]
 
 
@@ -41,6 +40,27 @@ Lava
 helpScreenMonitors
 LevelProgression
 displayAmountOfJumps
+pressurePlate
+end
+
+to pressurePlate
+  ask turtles
+  [
+    if [pcolor] of patch-here = brown
+    [
+      mock
+      ask patch-at 1 0 [set pcolor white]
+      ask patch-at 1 1 [set pcolor white]
+      ask patch-at 1 2 [set pcolor white]
+      ask patch-at 0 -1 [set pcolor orange]
+    ]
+  ]
+end
+to mock
+
+      ask patch  6 0 [ set plabel "Ha ha ha. Scrub"]
+      ask patch  6 -1 [ set plabel "By the way, pressure"]
+      ask patch  6 -2 [ set plabel "plates are brown"]
 end
 
 to displayAmountOfJumps
@@ -79,8 +99,10 @@ to gravityRules
   [
    ifelse [pcolor] of patch-right-and-ahead 90 1 = white 
     [
-      if fallVelocity >= fallHeight [die PlayerSetup] 
-      set fallVelocity 0    
+      
+      if fallVelocity >= fallHeight [die PlayerSetup set fallvelocity 0] 
+       set fallVelocity 0  
+       
         
     ]
     [
@@ -114,17 +136,16 @@ to Lava
   ask players
   [ if [pcolor] of patch-here = orange
     [
-      die
-     ask patches [set pcolor black]
-     playerSetup
-     set calcDarkness2 true
+     set lavaDeath true
     ]
   ]
-  if calcDarkness2
+  if lavaDeath
   [
-    set calcDarkness2 false
-    darkness
+   fuck
+   set lavaDeath false
   ]
+
+  tick
 
 end
 to darkness
@@ -186,12 +207,8 @@ to LevelProgression
    if any? turtles-on patch 16 3 
       [
         set levelNumber .1
+        ask players [die]
       ]
- ;   if [pcolor] of patch-here = violet
-  ;  [
-  ;    set levelNumber levelNumber + .1
-  ;    die
-  ;  ]
   ]
       if levelNumber = -1.5
   [
@@ -223,9 +240,9 @@ to LevelProgression
        ask patches [set plabel ""]
       import-pcolors "HelpScreen2.png"
         ask patch 2 -8 [ set plabel "Lava hurts. Don't get burned!"]
-        ask patch 9 10 [ set plabel "do a super duper jump" ]
-        ask patch 9 11 [ set plabel "on a yellow patch, you'll"] 
-        ask patch 9 12 [ set plabel "If you hold down your mouse"]
+        ask patch 11 10 [ set plabel "do a super duper jump" ]
+        ask patch 11 11 [ set plabel "on a yellow patch, you'll"] 
+        ask patch 11 12 [ set plabel "If you hold down your mouse"]
         ask patch -6 14 [ set plabel "Often there's more than" ]
         ask patch -6 13 [ set plabel "one way to get to the" ]
         ask patch -6 12 [ set plabel "end. Choose wisely" ]
@@ -244,47 +261,14 @@ to LevelProgression
   if levelNumber = 1
   [
     ; Level 1, designed by Nicholas Yang
-    ask players [die]
-    ask patches [ set plabel ""]
-    import-pcolors "Level1.png"
-    PlayerSetup
-    set levelNumber 1.5
-    set countJumps? true
-    darkness
-    ifelse difficultyLevel = 0
-      [
-        set amountOfJumps 27
-      ]
-      [        
-        ifelse difficultyLevel = 1
-        [
-          set amountOfJumps 25
-        ]
-        [set amountOfJumps 23]
-      ]
-      displayAmountOfJumps
+    level1setup
   ]
   if levelNumber = 2
   [
     ; Level 2, designed by Mohammed Shium
-    ask players [die]
-    import-pcolors "Level2.png"
-    PlayerSetup
-    set levelNumber 2.5
-    set countJumps? true
-    darkness
-        ifelse difficultyLevel = "Easy"
-      [
-        set amountOfJumps 110
-      ]
-      [        
-        ifelse difficultyLevel = "Medium"
-        [
-          set amountOfJumps 106
-        ]
-        [set amountOfJumps 102]
-      ]
+    level2setup
   ]
+  
 
 end
 to moveLeft
@@ -463,12 +447,51 @@ to jumpLeft
     darkness
   ]
 end
+to level1Setup
+    ask players [die]
+    ask patches [ set plabel ""]
+    import-pcolors "Level1.png"
+    PlayerSetup
+    set levelNumber 1.5
+    set countJumps? true
+    darkness
+    ifelse difficultyLevel = "Easy"
+      [
+        set amountOfJumps 27
+      ]
+      [        
+        ifelse difficultyLevel = "Medium"
+        [
+          set amountOfJumps 25
+        ]
+        [set amountOfJumps 23]
+      ]
+      displayAmountOfJumps
 
-
-
+end
+to level2setup
+      ask players [die]
+    import-pcolors "Level2.png"
+    PlayerSetup
+    set levelNumber 2.5
+    set countJumps? true
+    darkness
+        ifelse difficultyLevel = "Easy"
+      [
+        set amountOfJumps 110
+      ]
+      [        
+        ifelse difficultyLevel = "Medium"
+        [
+          set amountOfJumps 106
+        ]
+        [set amountOfJumps 102]
+      ]
+  
+end
 
 to jumpLeftMovement
-   ifelse amountOfJumps = 0 [ ]
+   ifelse amountOfJumps <= 0 [ ]
     [
       ask players
         [
@@ -560,7 +583,6 @@ end
 
 to fuck
   ask players [die]
-  ask patches [set plabel ""]
   set fallVelocity 0
   
   ; Fuck, you're dead. Now go get reincarnated you incompetent fucker. Seriously gotta remove these comments before Platek sees this code
@@ -605,6 +627,10 @@ end
 to paintViolet
   if mouse-down?
   [ask patch mouse-xcor mouse-ycor [set pcolor violet]]
+end
+to paintBrown
+  if mouse-down?
+  [ask patch mouse-xcor mouse-ycor [set pcolor brown]]
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
@@ -978,6 +1004,23 @@ BUTTON
 NIL
 set fallVelocity 0
 NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+893
+374
+994
+407
+NIL
+paintBrown
+T
 1
 T
 OBSERVER
