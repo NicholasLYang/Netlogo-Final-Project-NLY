@@ -491,8 +491,6 @@ to level2setup
 end
 
 to jumpLeftMovement
-   ifelse amountOfJumps <= 0 [ ]
-    [
       ask players
         [
           ifelse [pcolor] of patch-here = yellow
@@ -575,7 +573,7 @@ to jumpLeftMovement
 
 
       
-    ]
+   
 
 end
 
