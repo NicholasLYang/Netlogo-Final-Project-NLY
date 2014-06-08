@@ -26,10 +26,12 @@ ask patch -15 -14 [
 
 
 end
-to totalSetup
-  PlayerSetup
-  
-  darkness
+to poison 
+  ask turtles
+  [ if [pcolor] of patch-here = pink
+    [ ask turtles-here [die] ]]
+    
+     
 end
  
 to clear
@@ -44,7 +46,8 @@ LevelProgression
 displayAmountOfJumps
 pressurePlate
 bulletmovement
-bulletcollison
+bulletghostcollison
+poison 
 end
 
 to pressurePlate
@@ -505,6 +508,7 @@ to level3setup
       [ set breed ghosts
       set shape "ghost"
       set color red
+      set heading 0
       ]]
     
     PlayerSetup
@@ -677,13 +681,18 @@ end
 to bulletmovement 
   ask bullets [fd  1]
 end     
-to bulletcollison
+to bulletghostcollison
   ask patches with [any? bullets-here and pcolor = white] [ask bullets-here [die]]
   ask patches with [any? bullets-here and pcolor = orange][ask bullets-here [die]]
   ask patches with [any? bullets-here and pcolor = green][ask bullets-here [die]]
   ask patches with [any? bullets-here and pcolor = yellow][ask bullets-here [die]]
   ask patches with [any? bullets-here and pcolor = pink][ask bullets-here [die] set pcolor 83]
   ask ghosts with [any? bullets-here ][ask bullets-here [die] ask ghosts-here [die]]
+  ask ghosts with [any? players-here ][ask players-here [die] playersetup]
+  ask bullets with [pxcor = max-pxcor] [ask bullets-here [die]]
+  ask bullets with [pxcor = min-pxcor] [ask bullets-here [die]]
+  ask bullets with [pycor = max-pycor] [ask bullets-here [die]]
+  ask bullets with [pycor = min-pycor] [ask bullets-here [die]]
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
@@ -1193,6 +1202,40 @@ BUTTON
 NIL
 shoot
 NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+733
+150
+830
+183
+NIL
+playersetup
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+849
+338
+930
+371
+NIL
+paintpink
+T
 1
 T
 OBSERVER
