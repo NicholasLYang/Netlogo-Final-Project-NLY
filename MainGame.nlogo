@@ -281,6 +281,10 @@ to LevelProgression
   if levelNumber = 4
   [ ;level 4 designed by Kevin Yan and Mohammed Shium
     level4setup] 
+  if levelNumber = 5
+  [ ;level 5 designed by Kevin Yan 
+    level5setup] 
+  
 
 end
 to moveLeft
@@ -531,6 +535,15 @@ to level4setup
      playersetup
      set levelNumber 4.5
 end
+to level5setup
+  ;level 5 designed by Kevin Yan 
+   ask players [die]
+   ask ghosts [die]
+    import-pcolors "Level5.png"
+   
+     playersetup
+     set levelNumber 5.5
+end
 
 to jumpLeftMovement
       ask players
@@ -684,6 +697,9 @@ to setlevel3
 end
 to setlevel4
   set levelnumber 4
+end
+to setlevel5
+  set levelnumber 5
 end
 
 to shoot 
@@ -1272,6 +1288,23 @@ BUTTON
 320
 NIL
 setlevel4
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+705
+275
+786
+308
+NIL
+setlevel5
 NIL
 1
 T
