@@ -4,7 +4,7 @@ breed [players player]
 breed [ghosts ghost] 
 breed [poisons poison]
 breed [bullets bullet]
-patches-own [poisonLife]
+patches-own [poisonLife ghostLife]
 to Start
   ca
 reset-ticks
@@ -12,7 +12,6 @@ set levelNumber -1.5
 set calcDarkness false
 set lavaDeath false
 set countJumps? false
-ask patches [set poisonlife true]
 end
 to PlayerSetup
 ; sets up player on red "door" patch
@@ -28,27 +27,6 @@ ask patch -15 -14 [
                   ]
 
 
-end
-to poisonSpawn
-  ask patches with [distancexy centerOfLightX centerOfLightY <= 6 and pcolor = one-of [pink 132]] 
-  
-    [ ifelse poisonLife
-      [
-      sprout 1
-      [ set breed poisons
-        set shape "square"
-        set color 54
-        set heading 0
-      ]
-      ]
-      []
-    ]
-  ask poisons 
-  [ 
-    if [pcolor] of patch-here = black
-   [die]
-  ]
-  
 end
 ;to poison 
 ;  ask turtles
@@ -73,6 +51,7 @@ bulletghostcollison
 ; poison 
 noSharing
 poisonSpawn
+ghostSpawn
 end
 to noSharing
   ask players
@@ -84,6 +63,54 @@ to noSharing
   ]
 end
 
+
+to poisonSpawn
+  ask patches with [distancexy centerOfLightX centerOfLightY <= 6 and pcolor = one-of [pink 132]] 
+  
+    [ ifelse poisonLife
+      [
+      sprout 1
+      [ set breed poisons
+        set shape "square"
+        set color 54
+        set heading 0
+      ]
+      ]
+      []
+    ]
+  ask poisons 
+  [ 
+    if [pcolor] of patch-here = black
+   [die]
+  ]
+  
+end
+
+to ghostSpawn
+    ask patches with [distancexy centerOfLightX centerOfLightY <= 6 and pcolor = one-of [violet 123]] 
+  
+    [ ifelse ghostLife
+      [
+        sprout 1 
+          [ set breed ghosts
+            set shape "ghost"
+            set color red
+            set heading 0
+          ]
+        
+      ]
+      [ ]
+    ]
+  ask ghosts 
+  [ 
+    if [pcolor] of patch-here = black
+   [die]
+  ]
+  
+  
+  
+end
+  
 
 to pressurePlate
   ask turtles
@@ -98,6 +125,7 @@ to pressurePlate
     ]
   ]
 end
+
 to mock
 
       ask patch  6 1 [ set plabel "Ha ha ha. Scrub"]
@@ -596,16 +624,15 @@ to level3setup
   ; Level 3, designed by Mohammed Shium
     ask players [die]
     import-pcolors "Level3.png"
-    ask patches with [pcolor = violet]
-     [sprout 1 
-      [ set breed ghosts
-      set shape "ghost"
-      set color red
-      set heading 0
-      ]]
     PlayerSetup
     set amountOfJumps 200
     set levelNumber 3.5
+    ask patches 
+    [
+      set poisonlife true
+      set ghostLife true
+      ]
+ 
 end
 to level4setup
   ;level 4 designed by Kevin Yan and Mohammed Shium
@@ -813,7 +840,18 @@ to bulletghostcollison
   ask patches with [any? bullets-here and pcolor = orange][ask bullets-here [die]]
   ask patches with [any? bullets-here and pcolor = green][ask bullets-here [die]]
   ask patches with [any? bullets-here and pcolor = yellow][ask bullets-here [die]]
-  ask patches with [any? bullets-here and pcolor = pink] [set poisonLife false]
+  ask patches with [any? bullets-here and pcolor = pink and any? poisons-here] 
+  [
+    set poisonLife false 
+    ask bullets-here [die]
+    ask poisons-here [die]
+    ]
+  ask patches with [any? bullets-here and pcolor = violet and any? ghosts-here] 
+  [
+    set ghostLife false  
+    ask bullets-here [die]
+    ask ghosts-here [die]
+  ]
   ask ghosts with [any? bullets-here ][ask bullets-here [die] ask ghosts-here [die]]
   ask ghosts with [any? players-here ][ask players-here [die] playersetup]
   ask bullets with [pxcor = max-pxcor] [ask bullets-here [die]]
