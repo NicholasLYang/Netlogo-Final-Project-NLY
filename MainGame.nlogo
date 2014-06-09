@@ -65,9 +65,10 @@ to pressurePlate
 end
 to mock
 
-      ask patch  6 0 [ set plabel "Ha ha ha. Scrub"]
-      ask patch  6 -1 [ set plabel "By the way, pressure"]
-      ask patch  6 -2 [ set plabel "plates are brown"]
+      ask patch  6 1 [ set plabel "Ha ha ha. Scrub"]
+      ask patch  6 0 [ set plabel "By the way, pressure"]
+      ask patch  6 -1 [ set plabel "plates are brown"]
+      ask patches with [pxcor >= -2 and pxcor <= 7 and pycor >= -2 and pycor <= 2] [set pcolor blue]
 end
 
 to displayAmountOfJumps
@@ -180,6 +181,19 @@ ask patches with [distancexy centerOfLightX centerOfLightY >= 6] [set pcolor bla
     
     ]
   ]
+  if levelnumber = 3.5
+  [
+    import-pcolors "level3.png"
+    ask players
+    [
+      set centerOfLightX xcor
+      set centerofLightY ycor
+    ask patches with [distancexy centerOfLightX centerOfLightY >= 6] [set pcolor black]
+    ask patches with [distancexy centerOfLightX centerOfLightY > 4 and distancexy centerOfLightX centerOfLightY < 6] [set pcolor pcolor - 3]
+    
+    ]
+  ]
+    
 end
 to helpScreenMonitors
   ; Every time a player reaches a certain patch, a help monitor turns on. 
@@ -197,7 +211,49 @@ to helpScreenMonitors
     
   
   ]
-  
+  if levelnumber = .5
+  [
+    if any? turtles-on patch -5 -12
+    [ ask patch 2 -8 [ set plabel "Lava hurts. Don't get burned!"]]
+    if any? turtles-on patch 8 7
+    [  
+        ask patch 11 10 [ set plabel "do a super duper jump" ]
+        ask patch 11 11 [ set plabel "on a yellow patch, you'll"] 
+        ask patch 11 12 [ set plabel "If you hold down your mouse"]
+    ]
+    
+  ]
+  if levelnumber = 1.5
+  [
+    if any? turtles-on patch -15 -14 
+    [ ask patch -12 -11 [set plabel "Uh oh"]]
+    if any? turtles-on patch -8 -14
+    [ 
+      ask patches [set plabel ""]
+      ask patch -5 -11 [set plabel "the lights went out"]
+      ]
+        if any? turtles-on patch -6 -14
+    [ 
+      ask patches [set plabel ""]
+      ask patch -5 -11 [set plabel "can you"]
+      ]
+        if any? turtles-on patch -3 -12
+    [ 
+      ask patches [set plabel ""]
+      ask patch -1 -9 [set plabel "find the switch?"]
+      ]
+        if any? turtles-on patch -1 -10
+    [ 
+      ask patches [set plabel ""]
+      ask patch 4 -7 [set plabel "Good luck!"]
+      ]
+    if any? turtles-on patch 6 -9 
+    [ 
+      ask patches [set plabel ""]
+    ]
+
+    
+  ]
 end
 to LevelProgression
   ; Allows for progression through levels by changing the global variable levelNumber. Basically every time the player touches a red door, it raises the level number by half a point. 
@@ -246,10 +302,6 @@ to LevelProgression
        
        ask patches [set plabel ""]
       import-pcolors "HelpScreen2.png"
-        ask patch 2 -8 [ set plabel "Lava hurts. Don't get burned!"]
-        ask patch 11 10 [ set plabel "do a super duper jump" ]
-        ask patch 11 11 [ set plabel "on a yellow patch, you'll"] 
-        ask patch 11 12 [ set plabel "If you hold down your mouse"]
         ask patch -6 14 [ set plabel "Often there's more than" ]
         ask patch -6 13 [ set plabel "one way to get to the" ]
         ask patch -6 12 [ set plabel "end. Choose wisely" ]
@@ -635,7 +687,7 @@ end
 
 
 to fuck
-  ask players [die]
+  ask turtles [die]
   set fallVelocity 0
   
   ; Fuck, you're dead. Now go get reincarnated you incompetent fucker. Seriously gotta remove these comments before Platek sees this code
@@ -755,8 +807,8 @@ GRAPHICS-WINDOW
 16
 -16
 16
-0
-0
+1
+1
 1
 ticks
 30.0
@@ -1240,6 +1292,23 @@ BUTTON
 127
 NIL
 paintTurquoise\n
+T
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+863
+344
+937
+377
+reload
+set levelnumber levelnumber - .5
 NIL
 1
 T
