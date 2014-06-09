@@ -2,6 +2,7 @@ globals [amountOfJumps levelNumber jumpDirection fallVelocity centerOfLightX cen
 ; Limits number of jumps per level
 breed [players player]
 breed [ghosts ghost] 
+breed [poisons poison]
 breed [bullets bullet]
 to Start
   ca
@@ -26,13 +27,11 @@ ask patch -15 -14 [
 
 
 end
-to poison 
-  ask turtles
-  [ if [pcolor] of patch-here = pink
-    [ ask turtles-here [die] ]]
-    
-     
-end
+;to poison 
+;  ask turtles
+;  [ if [pcolor] of patch-here = pink
+;   [ ask turtles-here [die] ]]      
+;end
  
 to clear
   ca
@@ -47,8 +46,19 @@ displayAmountOfJumps
 pressurePlate
 bulletmovement
 bulletghostcollison
-poison 
+; poison 
+noSharing
 end
+to noSharing
+  ask players
+  [ 
+    if any? poisons-here
+    [
+      die
+    ]
+  ]
+end
+
 
 to pressurePlate
   ask turtles
@@ -568,8 +578,16 @@ to level3setup
       set color red
       set heading 0
       ]]
-    
+    ask patches with [pcolor = pink]
+    [sprout 1
+      [ set breed poisons
+        set shape "square"
+        set color 54
+        set heading 0
+      ]
+    ]
     PlayerSetup
+    set amountOfJumps 200
     set levelNumber 3.5
 end
 to level4setup
@@ -691,7 +709,8 @@ to fuck
   set fallVelocity 0
   
   ; Fuck, you're dead. Now go get reincarnated you incompetent fucker. Seriously gotta remove these comments before Platek sees this code
-playerSetup
+set levelnumber levelnumber - .5
+playersetup
 darkness
   end
 ; Just to create/sketch out levels
@@ -777,13 +796,13 @@ to bulletghostcollison
   ask patches with [any? bullets-here and pcolor = orange][ask bullets-here [die]]
   ask patches with [any? bullets-here and pcolor = green][ask bullets-here [die]]
   ask patches with [any? bullets-here and pcolor = yellow][ask bullets-here [die]]
-  ask patches with [any? bullets-here and pcolor = pink][ask bullets-here [die] set pcolor 83]
   ask ghosts with [any? bullets-here ][ask bullets-here [die] ask ghosts-here [die]]
   ask ghosts with [any? players-here ][ask players-here [die] playersetup]
   ask bullets with [pxcor = max-pxcor] [ask bullets-here [die]]
   ask bullets with [pxcor = min-pxcor] [ask bullets-here [die]]
   ask bullets with [pycor = max-pycor] [ask bullets-here [die]]
   ask bullets with [pycor = min-pycor] [ask bullets-here [die]]
+  ask poisons with [any? bullets-here ][ask bullets-here [die] ask poisons-here [die]]
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
