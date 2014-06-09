@@ -644,10 +644,13 @@ darkness
   end
 ; Just to create/sketch out levels
 
+to paintTurquoise 
+  if mouse-down?
+  [ask patch mouse-xcor mouse-ycor [set pcolor 83]]
+end
 to paintBlue
   if mouse-down?
-  [
-    ask patch mouse-xcor mouse-ycor [set pcolor 83]]
+  [ask patch mouse-xcor mouse-ycor [set pcolor blue]]
 end
 
 to paintWhite
@@ -685,7 +688,7 @@ to paintBrown
   if mouse-down?
   [ask patch mouse-xcor mouse-ycor [set pcolor brown]]
 end
-to paintpink
+to paintPink
   if mouse-down?
   [ask patch mouse-xcor mouse-ycor [set pcolor pink]]
 end
@@ -1112,10 +1115,10 @@ NIL
 1
 
 BUTTON
-893
-374
-994
-407
+940
+51
+1041
+84
 NIL
 paintBrown
 T
@@ -1146,40 +1149,6 @@ NIL
 1
 
 BUTTON
-724
-294
-805
-327
-NIL
-setlevel2\n
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-BUTTON
-700
-320
-781
-353
-NIL
-setlevel3
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-BUTTON
 718
 37
 799
@@ -1197,10 +1166,10 @@ NIL
 1
 
 BUTTON
-883
-344
-1006
-377
+683
+299
+806
+332
 NIL
 ask players [die]
 NIL
@@ -1248,29 +1217,12 @@ NIL
 1
 
 BUTTON
-733
-150
-830
-183
+934
+10
+1022
+43
 NIL
-playersetup
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-BUTTON
-849
-338
-930
-371
-NIL
-paintpink
+paintPink
 T
 1
 T
@@ -1282,29 +1234,12 @@ NIL
 1
 
 BUTTON
-754
-287
-835
-320
+938
+94
+1064
+127
 NIL
-setlevel4
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-BUTTON
-705
-275
-786
-308
-NIL
-setlevel5
+paintTurquoise\n
 NIL
 1
 T
