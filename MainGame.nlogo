@@ -4,6 +4,7 @@ breed [players player]
 breed [ghosts ghost] 
 breed [poisons poison]
 breed [bullets bullet]
+patches-own [poisonLife]
 to Start
   ca
 reset-ticks
@@ -11,6 +12,7 @@ set levelNumber -1.5
 set calcDarkness false
 set lavaDeath false
 set countJumps? false
+ask patches [set poisonlife true]
 end
 to PlayerSetup
 ; sets up player on red "door" patch
@@ -27,11 +29,33 @@ ask patch -15 -14 [
 
 
 end
+to poisonSpawn
+  ask patches with [distancexy centerOfLightX centerOfLightY <= 6 and pcolor = one-of [pink 132]] 
+  
+    [ ifelse poisonLife
+      [
+      sprout 1
+      [ set breed poisons
+        set shape "square"
+        set color 54
+        set heading 0
+      ]
+      ]
+      []
+    ]
+  ask poisons 
+  [ 
+    if [pcolor] of patch-here = black
+   [die]
+  ]
+  
+end
 ;to poison 
 ;  ask turtles
 ;  [ if [pcolor] of patch-here = pink
 ;   [ ask turtles-here [die] ]]      
 ;end
+
  
 to clear
   ca
@@ -48,6 +72,7 @@ bulletmovement
 bulletghostcollison
 ; poison 
 noSharing
+poisonSpawn
 end
 to noSharing
   ask players
@@ -83,7 +108,7 @@ end
 
 to displayAmountOfJumps
   ; displays amount of jumps left on upper left corner
-  if levelNumber = one-of [1.5 2.5]
+  if levelNumber > 1
   [
   ask patch -15 15 [set plabel amountOfJumps]
   ]
@@ -578,14 +603,6 @@ to level3setup
       set color red
       set heading 0
       ]]
-    ask patches with [pcolor = pink]
-    [sprout 1
-      [ set breed poisons
-        set shape "square"
-        set color 54
-        set heading 0
-      ]
-    ]
     PlayerSetup
     set amountOfJumps 200
     set levelNumber 3.5
@@ -796,6 +813,7 @@ to bulletghostcollison
   ask patches with [any? bullets-here and pcolor = orange][ask bullets-here [die]]
   ask patches with [any? bullets-here and pcolor = green][ask bullets-here [die]]
   ask patches with [any? bullets-here and pcolor = yellow][ask bullets-here [die]]
+  ask patches with [any? bullets-here and pcolor = pink] [set poisonLife false]
   ask ghosts with [any? bullets-here ][ask bullets-here [die] ask ghosts-here [die]]
   ask ghosts with [any? players-here ][ask players-here [die] playersetup]
   ask bullets with [pxcor = max-pxcor] [ask bullets-here [die]]
