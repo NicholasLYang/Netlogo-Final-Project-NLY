@@ -66,6 +66,8 @@ to noSharing
     if any? poisons-here
     [
       die
+      playerSetup
+      set calcDarkness true
     ]
   ]
 end
@@ -130,7 +132,7 @@ to pressurePlate
       ask patch-here [set sprungPlate true]
     ]
   ]
- ask patches with [sprungPlate = true and distancexy centerOfLightX centerOfLightY < 6]
+ ask patches with [sprungPlate = true and distancexy centerOfLightX centerOfLightY < outerRing]
  [
       ask patch-at 1 0 [set pcolor white]
       ask patch-at 1 1 [set pcolor white]
@@ -703,7 +705,17 @@ to level3setup
     set outerRing 8
     import-pcolors "Level3.png"
     PlayerSetup
-    set amountOfJumps 200
+        ifelse difficultyLevel = "Easy"
+      [
+        set amountOfJumps 88
+      ]
+      [        
+        ifelse difficultyLevel = "Medium"
+        [
+          set amountOfJumps 82
+        ]
+        [set amountOfJumps 78]
+      ]
     set levelNumber 3.5
     ask patches 
     [
@@ -719,6 +731,17 @@ to level4setup
    ask ghosts [die]
     import-pcolors "Level4.png"
     ask patches [set sprungPlate false]
+     ifelse difficultyLevel = "Easy"
+      [
+        set amountOfJumps 133
+      ]
+      [        
+        ifelse difficultyLevel = "Medium"
+        [
+          set amountOfJumps 129
+        ]
+        [set amountOfJumps 125]
+      ]
      playersetup
      set levelNumber 4.5
 end
@@ -732,6 +755,7 @@ to level5setup
     import-pcolors "Level5.png"
    
      playersetup
+     darkness
      set levelNumber 5.5
 end
 
@@ -831,6 +855,7 @@ to fuck
   ; Fuck, you're dead. Now go get reincarnated you incompetent fucker. Seriously gotta remove these comments before Platek sees this code
 set levelnumber levelnumber - .5
 playersetup
+set calcDarkness true
 darkness
   end
 ; Just to create/sketch out levels
@@ -916,7 +941,7 @@ to bulletghostcollison
   ask patches with [any? bullets-here and pcolor = orange][ask bullets-here [die]]
   ask patches with [any? bullets-here and pcolor = green][ask bullets-here [die]]
   ask patches with [any? bullets-here and pcolor = yellow][ask bullets-here [die]]
-  ask patches with [any? bullets-here and pcolor = pink and any? poisons-here] 
+  ask patches with [any? bullets-here and pcolor = one-of [pink 132] and any? poisons-here] 
   [
     set poisonLife false 
     ask bullets-here [die]
@@ -1039,7 +1064,7 @@ BUTTON
 115
 NIL
 start
-T
+NIL
 1
 T
 OBSERVER
@@ -1067,6 +1092,34 @@ BUTTON
 NIL
 shoot
 NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+MONITOR
+867
+178
+980
+223
+NIL
+amountOfJumps
+17
+1
+11
+
+BUTTON
+74
+338
+172
+371
+NIL
+gameRules
+T
 1
 T
 OBSERVER
