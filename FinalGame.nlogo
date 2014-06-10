@@ -6,9 +6,7 @@ breed [poisons poison]
 breed [bullets bullet]
 patches-own [poisonLife ghostLife sprungPlate]
 to Start
-  ifelse started? = 1
-  [gameRules]
-  [
+
   ca
 reset-ticks
 set levelNumber -1.5
@@ -17,7 +15,7 @@ set lavaDeath false
 set countJumps? false
 set fallHeight 10
 set started? 1
-  ]
+  
 end
   
 to PlayerSetup
@@ -59,6 +57,7 @@ bulletghostcollison
 noSharing
 poisonSpawn
 ghostSpawn
+noJumps
 end
 to noSharing
   ask players
@@ -156,9 +155,13 @@ to displayAmountOfJumps
   if levelNumber > 1
   [
   ask patch -15 15 [set plabel amountOfJumps]
+  ask patch -12 15 [set plabel "jumps"]
   ]
 end
-  
+to noJumps
+  if amountOfjumps = 0 [restart]
+end
+
 to gravityRules
   ; If the turtle is facing to the left, it makes sure that there's a block on its left (aka downward). If there is, it stays put. 
   ; Else it moves "downward" and then orients itself back to the left
@@ -234,7 +237,7 @@ to Lava
   ]
   if lavaDeath
   [
-   fuck
+   restart
    set lavaDeath false
   ]
 
@@ -848,11 +851,11 @@ end
 
 
 
-to fuck
+to restart
   ask turtles [die]
   set fallVelocity 0
   
-  ; Fuck, you're dead. Now go get reincarnated you incompetent fucker. Seriously gotta remove these comments before Platek sees this code
+  ; restart, you're dead. Now go get reincarnated you incompetent restarter. Seriously gotta remove these comments before Platek sees this code
 set levelnumber levelnumber - .5
 playersetup
 set calcDarkness true
@@ -1082,7 +1085,7 @@ CHOOSER
 DifficultyLevel
 DifficultyLevel
 "Easy" "Medium" "Hard"
-0
+2
 
 BUTTON
 60
@@ -1101,17 +1104,6 @@ NIL
 NIL
 1
 
-MONITOR
-867
-178
-980
-223
-NIL
-amountOfJumps
-17
-1
-11
-
 BUTTON
 74
 338
@@ -1120,6 +1112,23 @@ BUTTON
 NIL
 gameRules
 T
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+764
+151
+837
+184
+NIL
+restart
+NIL
 1
 T
 OBSERVER
