@@ -1,10 +1,10 @@
-globals [amountOfJumps levelNumber jumpDirection fallVelocity centerOfLightX centerOfLightY calcDarkness lavaDeath countJumps?]
+globals [amountOfJumps levelNumber jumpDirection fallVelocity centerOfLightX centerOfLightY calcDarkness lavaDeath countJumps? outerRing]
 ; Limits number of jumps per level
 breed [players player]
 breed [ghosts ghost] 
 breed [poisons poison]
 breed [bullets bullet]
-patches-own [poisonLife ghostLife]
+patches-own [poisonLife ghostLife sprungPlate]
 to Start
   ca
 reset-ticks
@@ -65,7 +65,7 @@ end
 
 
 to poisonSpawn
-  ask patches with [distancexy centerOfLightX centerOfLightY <= 6 and pcolor = one-of [pink 132]] 
+  ask patches with [distancexy centerOfLightX centerOfLightY <= outerRing and pcolor = one-of [pink 132]] 
   
     [ ifelse poisonLife
       [
@@ -117,13 +117,21 @@ to pressurePlate
   [
     if [pcolor] of patch-here = brown
     [
-      if levelnumber = .5  [mock]
+      if levelnumber = .5  [mock
+      ask patch-here [set sprungPlate true]
+      ]
+      ask patch-here [set sprungPlate true]
+    ]
+  ]
+ ask patches with [sprungPlate = true and distancexy centerOfLightX centerOfLightY < 6]
+ [
       ask patch-at 1 0 [set pcolor white]
       ask patch-at 1 1 [set pcolor white]
       ask patch-at 1 2 [set pcolor white]
       ask patch-at 0 -1 [set pcolor orange]
-    ]
-  ]
+      
+ ]
+ tick
 end
 
 to mock
@@ -150,7 +158,12 @@ to gravityRules
   [
    ifelse [pcolor] of patch-left-and-ahead 90 1 = white
     [
-     if fallVelocity >= fallHeight [die PlayerSetup] 
+     if fallVelocity >= fallHeight 
+     [
+       die 
+       playersetup 
+       set calcdarkness true
+       ] 
      set fallVelocity 0
     ]
     
@@ -227,8 +240,8 @@ to darkness
     [
       set centerOfLightX xcor
       set centerofLightY ycor
-ask patches with [distancexy centerOfLightX centerOfLightY >= 6] [set pcolor black]
-    ask patches with [distancexy centerOfLightX centerOfLightY > 5 and distancexy centerOfLightX centerOfLightY < 6] [set pcolor pcolor - 3]
+ask patches with [distancexy centerOfLightX centerOfLightY >= outerRing] [set pcolor black]
+    ask patches with [distancexy centerOfLightX centerOfLightY > outerRing - 1 and distancexy centerOfLightX centerOfLightY < outerRing] [set pcolor pcolor - 3]
 
     ]
   ]
@@ -239,8 +252,8 @@ ask patches with [distancexy centerOfLightX centerOfLightY >= 6] [set pcolor bla
     [
       set centerOfLightX xcor
       set centerofLightY ycor
-    ask patches with [distancexy centerOfLightX centerOfLightY >= 6] [set pcolor black]
-    ask patches with [distancexy centerOfLightX centerOfLightY > 4 and distancexy centerOfLightX centerOfLightY < 6] [set pcolor pcolor - 3]
+    ask patches with [distancexy centerOfLightX centerOfLightY >= outerRing] [set pcolor black]
+    ask patches with [distancexy centerOfLightX centerOfLightY > outerRing - 2 and distancexy centerOfLightX centerOfLightY < outerRing] [set pcolor pcolor - 3]
     
     ]
   ]
@@ -251,8 +264,32 @@ ask patches with [distancexy centerOfLightX centerOfLightY >= 6] [set pcolor bla
     [
       set centerOfLightX xcor
       set centerofLightY ycor
-    ask patches with [distancexy centerOfLightX centerOfLightY >= 6] [set pcolor black]
-    ask patches with [distancexy centerOfLightX centerOfLightY > 4 and distancexy centerOfLightX centerOfLightY < 6] [set pcolor pcolor - 3]
+    ask patches with [distancexy centerOfLightX centerOfLightY >= outerRing] [set pcolor black]
+    ask patches with [distancexy centerOfLightX centerOfLightY > outerRing - 2 and distancexy centerOfLightX centerOfLightY < outerRing] [set pcolor pcolor - 3]
+    
+    ]
+  ]
+  if levelnumber = 4.5
+  [
+    import-pcolors "level4.png"
+    ask players
+    [
+      set centerOfLightX xcor
+      set centerofLightY ycor
+    ask patches with [distancexy centerOfLightX centerOfLightY >= outerRing] [set pcolor black]
+    ask patches with [distancexy centerOfLightX centerOfLightY > outerRing - 2 and distancexy centerOfLightX centerOfLightY < outerRing] [set pcolor pcolor - 3]
+    
+    ]
+  ]
+    if levelnumber = 5.5
+  [
+    import-pcolors "level5.png"
+    ask players
+    [
+      set centerOfLightX xcor
+      set centerofLightY ycor
+    ask patches with [distancexy centerOfLightX centerOfLightY >= outerRing] [set pcolor black]
+    ask patches with [distancexy centerOfLightX centerOfLightY > outerRing - 2 and distancexy centerOfLightX centerOfLightY < outerRing] [set pcolor pcolor - 3]
     
     ]
   ]
@@ -316,6 +353,37 @@ to helpScreenMonitors
     ]
 
     
+  ]
+  if levelnumber = 3.5 
+  [
+    if any? turtles-on patch -12 -12
+    [
+      ask patch -8 -11 [set plabel "Hey, green squares"]
+    ]
+    if any? turtles-on patch -9 -12
+    [
+      ask patches [set plabel ""]
+      ask patch -5 -12 [set plabel "they must be poisonous"]
+    ]
+    if any? turtles-on patch -8 -14
+    [
+      ask patches [set plabel ""]
+      ask patch -4 -12 [set plabel "better use your gun"]
+      ask patch -4 -13 [set plabel "to kill them"]
+    ]
+    if any? turtles-on patch -7 -14
+    [
+      ask patches [set plabel ""]
+    ]
+    if any? turtles-on patch -5 -14
+    [
+      ask patch -3 -12 [set plabel "Press space to shoot"]
+      ask patch -3 -11 [set plabel "Hold mouse to aim"]
+    ]
+    if any? turtles-on patch -4 -14
+    [
+      ask patches [set plabel ""]
+    ]
   ]
 end
 to LevelProgression
@@ -580,6 +648,7 @@ to jumpLeft
 end
 to level1Setup
     ask players [die]
+    set outerRing 6
     ask patches [ set plabel ""]
     import-pcolors "Level1.png"
     PlayerSetup
@@ -605,6 +674,7 @@ to level2setup
     import-pcolors "Level2final.png"
     PlayerSetup
     set levelNumber 2.5
+    set outerRing 7
     set countJumps? true
     darkness
         ifelse difficultyLevel = "Easy"
@@ -623,6 +693,7 @@ end
 to level3setup
   ; Level 3, designed by Mohammed Shium
     ask players [die]
+    set outerRing 8
     import-pcolors "Level3.png"
     PlayerSetup
     set amountOfJumps 200
@@ -637,22 +708,20 @@ end
 to level4setup
   ;level 4 designed by Kevin Yan and Mohammed Shium
    ask players [die]
+   set outerRing 9
    ask ghosts [die]
     import-pcolors "Level4.png"
-    ask patches with [pcolor = violet]
-     [sprout 1 
-      [ set breed ghosts
-      set shape "ghost"
-      set color red
-      set heading 0
-      ]]
+    ask patches [set sprungPlate false]
      playersetup
      set levelNumber 4.5
 end
 to level5setup
   ;level 5 designed by Kevin Yan 
+  ask patches [set plabel ""]
+  set outerRing 10
    ask players [die]
    ask ghosts [die]
+   ask patches [set sprungPlate false]
     import-pcolors "Level5.png"
    
      playersetup
@@ -1384,6 +1453,23 @@ BUTTON
 377
 reload
 set levelnumber levelnumber - .5
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+961
+209
+1065
+242
+Clear plabel
+ask patches [set plabel \"\"]
 NIL
 1
 T
