@@ -121,6 +121,7 @@ to pressurePlate
       ask patch-here [set sprungPlate true]
       ]
       ask patch-here [set sprungPlate true]
+      
     ]
   ]
  ask patches with [sprungPlate = true and distancexy centerOfLightX centerOfLightY < 6]
@@ -726,6 +727,18 @@ to level5setup
    
      playersetup
      set levelNumber 5.5
+       ifelse difficultyLevel = "Easy"
+      [
+        set amountOfJumps 114
+      ]
+      [        
+        ifelse difficultyLevel = "Medium"
+        [
+          set amountOfJumps 110
+        ]
+        [set amountOfJumps 105]
+      ]
+  
 end
 
 to jumpLeftMovement
@@ -903,8 +916,10 @@ to shoot
 end
 to bulletmovement 
   ask bullets [fd  1]
+  tick
 end     
 to bulletghostcollison
+  tick
   ask patches with [any? bullets-here and pcolor = white] [ask bullets-here [die]]
   ask patches with [any? bullets-here and pcolor = orange][ask bullets-here [die]]
   ask patches with [any? bullets-here and pcolor = green][ask bullets-here [die]]
