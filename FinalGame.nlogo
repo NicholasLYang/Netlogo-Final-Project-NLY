@@ -265,8 +265,10 @@ to Lava
   ]
   if lavaDeath
   [
-   restart
-   set lavaDeath false
+    
+      restart
+      set lavaDeath false
+
   ]
 
   tick
@@ -341,12 +343,12 @@ to helpScreenMonitors
   [ask patch -7 -9 [ set plabel "Press D to Move Right"]]
   if levelNumber = 0 
   [ 
-    if any? turtles-on patch 2 -15
+    if any? players-on patch 2 -15
   [ ask patch 14 -15 [ set plabel "Press E to Jump Right"] ]
-    if any? turtles-on patch 15 -10
+    if any? players-on patch 15 -10
   [ask patch 13 -6 [ set plabel "Press Q to Jump Left"  ]
    ask patch 13 0 [ set plabel "Hold mouse to double jump"]]
-    if any? turtles-on patch 13 -9
+    if any? players-on patch 13 -9
    [ask patch 0 -2 [ set plabel "Press A to Move Left" ] ]
     
   
@@ -365,29 +367,29 @@ to helpScreenMonitors
   ]
   if levelnumber = 1.5
   [
-    if any? turtles-on patch -15 -14 
+    if any? players-on patch -15 -14 
     [ ask patch -12 -11 [set plabel "Uh oh"]]
-    if any? turtles-on patch -8 -14
+    if any? players-on patch -8 -14
     [ 
       ask patches [set plabel ""]
       ask patch -5 -11 [set plabel "the lights went out"]
       ]
-        if any? turtles-on patch -6 -14
+        if any? players-on patch -6 -14
     [ 
       ask patches [set plabel ""]
       ask patch -5 -11 [set plabel "can you"]
       ]
-        if any? turtles-on patch -3 -12
+        if any? players-on patch -3 -12
     [ 
       ask patches [set plabel ""]
       ask patch -1 -9 [set plabel "find the switch?"]
       ]
-        if any? turtles-on patch -1 -10
+        if any? players-on patch -1 -10
     [ 
       ask patches [set plabel ""]
       ask patch 4 -7 [set plabel "Good luck!"]
       ]
-    if any? turtles-on patch 6 -9 
+    if any? players-on patch 6 -9 
     [ 
       ask patches [set plabel ""]
     ]
@@ -396,33 +398,45 @@ to helpScreenMonitors
   ]
   if levelnumber = 3.5 
   [
-    if any? turtles-on patch -12 -12
+    if any? players-on patch -12 -12
     [
       ask patch -8 -11 [set plabel "Hey, green squares"]
     ]
-    if any? turtles-on patch -9 -12
+    if any? players-on patch -9 -12
     [
       ask patches [set plabel ""]
       ask patch -5 -12 [set plabel "they must be poisonous"]
     ]
-    if any? turtles-on patch -8 -14
+    if any? players-on patch -8 -14
     [
       ask patches [set plabel ""]
       ask patch -4 -12 [set plabel "better use your gun"]
       ask patch -4 -13 [set plabel "to kill them"]
     ]
-    if any? turtles-on patch -7 -14
+    if any? players-on patch -7 -14
     [
       ask patches [set plabel ""]
     ]
-    if any? turtles-on patch -5 -14
+    if any? players-on patch -5 -14
     [
-      ask patch -3 -12 [set plabel "Press space to shoot"]
+      ask patch -3 -12 [set plabel "Press F to shoot"]
       ask patch -3 -11 [set plabel "Hold mouse to aim"]
     ]
-    if any? turtles-on patch -4 -14
+    if any? players-on patch -4 -14
     [
       ask patches [set plabel ""]
+    ]
+  ]
+  if levelnumber = 6.5 
+  [
+    ask patches [set plabel-color black]
+    if any? players-on patch 0 -9
+    [
+      ask patch 2 6 [set plabel "Created by:"]
+      ask patch 2 4 [set plabel "Nicholas Yang"]
+      ask patch 2 2 [set plabel "Mohammed Shium"]
+      ask patch 2 0 [set plabel "Kevin Yan"]
+      
     ]
   ]
 end
@@ -432,6 +446,11 @@ to LevelProgression
   ; If this doesn't make sense, I can explain more. 
   ask players
   [
+    if [pcolor] of patch-here = 113
+    [
+      set levelnumber -1.5
+      die
+    ]
     if [pcolor] of patch-here = green
     [
       
@@ -446,6 +465,8 @@ to LevelProgression
   ]
       if levelNumber = -1.5
   [
+    ask patches [set plabel ""]
+    ask patches [set plabel-color white]
     ask players [die]
     import-pcolors "TitleScreen.png"
     PlayerSetup
@@ -470,7 +491,6 @@ to LevelProgression
      ; Second part of the help screen. Once you go to the end of the window, it loads the next part
     [
       set levelNumber .5
-       
        ask patches [set plabel ""]
       import-pcolors "HelpScreen2.png"
         ask patch -6 14 [ set plabel "Often there's more than" ]
@@ -509,9 +529,13 @@ to LevelProgression
     level5setup] 
   if levelNumber = 6
   [
+    ask players [die]
+    ask patches [set plabel ""]
+    set fallvelocity 0
     import-pcolors "TheEnd.png"
     playerSetup
     darkness
+    set levelnumber 6.5
   ]
 
 end
@@ -902,7 +926,13 @@ to restart
   ask patches [set sprungPlate false]
   
   ; restart, you're dead. Now go get reincarnated you incompetent restarter. Seriously gotta remove these comments before Platek sees this code
-set levelnumber levelnumber - .5
+  ifelse levelnumber = .5
+  [
+    set levelnumber .1
+  ]
+  [
+    set levelnumber levelnumber - .5
+  ]
 playersetup
 set calcDarkness true
 darkness
@@ -956,6 +986,10 @@ end
 to paintPink
   if mouse-down?
   [ask patch mouse-xcor mouse-ycor [set pcolor pink]]
+end
+to paintPurple
+  if mouse-down?
+  [ask patch mouse-xcor mouse-ycor [set pcolor 113]]
 end
 to setlevel2
   set levelNumber 2
@@ -1132,7 +1166,7 @@ CHOOSER
 DifficultyLevel
 DifficultyLevel
 "Easy" "Medium" "Hard"
-2
+0
 
 BUTTON
 60
@@ -1163,7 +1197,7 @@ T
 T
 OBSERVER
 NIL
-NIL
+S
 NIL
 NIL
 1
