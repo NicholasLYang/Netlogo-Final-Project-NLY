@@ -154,8 +154,8 @@ to displayAmountOfJumps
   ; displays amount of jumps left on upper left corner
   if levelNumber > 1
   [
-  ask patch -15 15 [set plabel amountOfJumps]
-  ask patch -12 15 [set plabel "jumps"]
+  ask patch -14 15 [set plabel amountOfJumps]
+  ask patch -11 15 [set plabel "jumps"]
   ]
 end
 to noJumps
@@ -1085,7 +1085,7 @@ CHOOSER
 DifficultyLevel
 DifficultyLevel
 "Easy" "Medium" "Hard"
-2
+0
 
 BUTTON
 60
