@@ -72,7 +72,6 @@ noSharing
 poisonSpawn
 ghostSpawn
 noJumps
-addDarkness
 end
 to noSharing
   ask players
@@ -167,7 +166,7 @@ to pressurePlate
       
  ]
  ]
- 
+ tick
  
 end
 
@@ -220,7 +219,7 @@ to gravityRules
   
   ; Added a gravity monitor. Basically every time that the turtle falls, one is added to the velocity (not realistic, but who cares)
   ; When the turtle "hits" the ground, the velocity is compared to the fallHeight variable. If it's larger than the fallHeight, the turtle dies
-  ask turtles with [heading = 90] 
+  ask players with [heading = 90] 
   [
    ifelse [pcolor] of patch-right-and-ahead 90 1 = white 
     [
@@ -238,8 +237,6 @@ to gravityRules
     set calcDarkness true
     ]
   ]
-end
-to addDarkness
   if calcDarkness 
   [
     darkness
@@ -981,7 +978,7 @@ to shoot
                        set shape "rocket"
                          set color green
                        set size  1 ;0.75
-                       
+                                            
                        fd 1
                      ] ]
 end
