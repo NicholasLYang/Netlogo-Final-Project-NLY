@@ -889,6 +889,14 @@ to paintPink
   if mouse-down?
   [ask patch mouse-xcor mouse-ycor [set pcolor pink]]
 end
+to paintGrey
+  if mouse-down?
+  [ask patch mouse-xcor mouse-ycor [set pcolor grey]]
+end
+to paintDarkYellow
+  if mouse-down?
+  [ask patch mouse-xcor mouse-ycor [set pcolor 43]]
+end
 to setlevel2
   set levelNumber 2
 end
@@ -966,8 +974,8 @@ GRAPHICS-WINDOW
 16
 -16
 16
-1
-1
+0
+0
 1
 ticks
 30.0
@@ -1486,6 +1494,40 @@ BUTTON
 Clear plabel
 ask patches [set plabel \"\"]
 NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+957
+318
+1049
+351
+NIL
+paintGrey
+T
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+991
+375
+1122
+408
+NIL
+paintDarkYellow
+T
 1
 T
 OBSERVER

@@ -13,13 +13,27 @@ set levelNumber -1.5
 set calcDarkness false
 set lavaDeath false
 set countJumps? false
-set fallHeight 10
+set fallHeight 6
 set started? 1
+ask patches [set poisonLife true]
   
 end
   
 to PlayerSetup
 ; sets up player on red "door" patch
+if levelnumber = -1
+[
+  ask patch -15 -15 [
+                   
+                   sprout-players 1
+                   [ 
+                     set color orange
+                     set shape "person"
+                     set heading 90
+                     set size 1
+                   ]
+                  ]
+]
 ask patch -15 -14 [
                    
                    sprout-players 1
@@ -58,6 +72,7 @@ noSharing
 poisonSpawn
 ghostSpawn
 noJumps
+addDarkness
 end
 to noSharing
   ask players
@@ -131,7 +146,19 @@ to pressurePlate
       ask patch-here [set sprungPlate true]
     ]
   ]
- ask patches with [sprungPlate = true and distancexy centerOfLightX centerOfLightY < outerRing]
+  ifelse levelnumber = .5
+ [
+    ask patches with [sprungPlate = true]
+ [
+      ask patch-at 1 0 [set pcolor white]
+      ask patch-at 1 1 [set pcolor white]
+      ask patch-at 1 2 [set pcolor white]
+      ask patch-at 0 -1 [set pcolor orange]
+ ]
+ ]
+ 
+ [
+   ask patches with [sprungPlate = true and distancexy centerOfLightX centerOfLightY <= outerRing]
  [
       ask patch-at 1 0 [set pcolor white]
       ask patch-at 1 1 [set pcolor white]
@@ -139,7 +166,9 @@ to pressurePlate
       ask patch-at 0 -1 [set pcolor orange]
       
  ]
- tick
+ ]
+ 
+ 
 end
 
 to mock
@@ -159,7 +188,7 @@ to displayAmountOfJumps
   ]
 end
 to noJumps
-  if amountOfjumps = 0 [restart]
+  if amountOfjumps = 0 and levelnumber >= 1 [restart]
 end
 
 to gravityRules
@@ -209,6 +238,8 @@ to gravityRules
     set calcDarkness true
     ]
   ]
+end
+to addDarkness
   if calcDarkness 
   [
     darkness
@@ -479,7 +510,12 @@ to LevelProgression
   if levelNumber = 5
   [ ;level 5 designed by Kevin Yan 
     level5setup] 
-  
+  if levelNumber = 6
+  [
+    import-pcolors "TheEnd.png"
+    playerSetup
+    darkness
+  ]
 
 end
 to moveLeft
@@ -760,6 +796,18 @@ to level5setup
      playersetup
      darkness
      set levelNumber 5.5
+       ifelse difficultyLevel = "Easy"  
+        [      
+          set amountOfJumps 114      
+       ]      
+       [              
+       ifelse difficultyLevel = "Medium"      
+         [      
+            set amountOfJumps 110      
+         ]      
+          [set amountOfJumps 105]      
+        ]      
+    
 end
 
 to jumpLeftMovement
@@ -854,6 +902,7 @@ end
 to restart
   ask turtles [die]
   set fallVelocity 0
+  ask patches [set sprungPlate false]
   
   ; restart, you're dead. Now go get reincarnated you incompetent restarter. Seriously gotta remove these comments before Platek sees this code
 set levelnumber levelnumber - .5
@@ -938,19 +987,20 @@ to shoot
 end
 to bulletmovement 
   ask bullets [fd  1]
-end     
+end    
 to bulletghostcollison
+  tick
   ask patches with [any? bullets-here and pcolor = white] [ask bullets-here [die]]
   ask patches with [any? bullets-here and pcolor = orange][ask bullets-here [die]]
   ask patches with [any? bullets-here and pcolor = green][ask bullets-here [die]]
   ask patches with [any? bullets-here and pcolor = yellow][ask bullets-here [die]]
-  ask patches with [any? bullets-here and pcolor = one-of [pink 132] and any? poisons-here] 
+  ask patches with [any? bullets-here and any? poisons-here] 
   [
     set poisonLife false 
     ask bullets-here [die]
     ask poisons-here [die]
     ]
-  ask patches with [any? bullets-here and pcolor = violet and any? ghosts-here] 
+  ask patches with [any? bullets-here and any? ghosts-here] 
   [
     set ghostLife false  
     ask bullets-here [die]
@@ -1085,7 +1135,7 @@ CHOOSER
 DifficultyLevel
 DifficultyLevel
 "Easy" "Medium" "Hard"
-0
+2
 
 BUTTON
 60
@@ -1099,7 +1149,7 @@ NIL
 T
 OBSERVER
 NIL
-NIL
+F
 NIL
 NIL
 1
