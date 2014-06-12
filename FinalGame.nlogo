@@ -1,4 +1,4 @@
-globals [amountOfJumps levelNumber jumpDirection fallVelocity centerOfLightX centerOfLightY calcDarkness lavaDeath countJumps? outerRing fallHeight started?]
+globals [amountOfJumps levelNumber jumpDirection fallVelocity centerOfLightX centerOfLightY calcDarkness mocked lavaDeath countJumps? outerRing fallHeight]
 ; Limits number of jumps per level
 breed [players player]
 breed [ghosts ghost] 
@@ -13,8 +13,9 @@ set levelNumber -1.5
 set calcDarkness false
 set lavaDeath false
 set countJumps? false
-set fallHeight 6
-set started? 1
+set fallHeight 100
+
+set mocked false
 ask patches [set poisonLife true]
   
 end
@@ -176,6 +177,7 @@ to mock
       ask patch  6 0 [ set plabel "By the way, pressure"]
       ask patch  6 -1 [ set plabel "plates are brown"]
       ask patches with [pxcor >= -2 and pxcor <= 7 and pycor >= -2 and pycor <= 2] [set pcolor blue]
+      set mocked true
 end
 
 to displayAmountOfJumps
@@ -461,7 +463,7 @@ to LevelProgression
    if any? turtles-on patch 16 3 
       [
         set levelNumber .1
-        ask players [die]
+        die
       ]
   ]
       if levelNumber = -1.5
@@ -491,8 +493,28 @@ to LevelProgression
     if levelNumber = .1
      ; Second part of the help screen. Once you go to the end of the window, it loads the next part
     [
+      ifelse mocked
+      [
       set levelNumber .5
-       ask patches [set plabel ""]
+      import-pcolors "HelpScreen2.png"
+        ask patches with [pxcor >= -2 and pxcor <= 7 and pycor >= -2 and pycor <= 2] [set pcolor blue]
+        ask patch -6 14 [ set plabel "Often there's more than" ]
+        ask patch -6 13 [ set plabel "one way to get to the" ]
+        ask patch -6 12 [ set plabel "end. Choose wisely" ]
+        ; Had to setup players manually because this isn't a new level per se
+        ask patch -15 -14 [ sprout-players 1
+                   [ 
+                     set color orange
+                     set shape "person"
+                     set heading 90
+                     set size 1
+                   ]
+        ]
+      ]
+      [
+        ask patches [set plabel ""]
+      set levelNumber .5
+
       import-pcolors "HelpScreen2.png"
         ask patch -6 14 [ set plabel "Often there's more than" ]
         ask patch -6 13 [ set plabel "one way to get to the" ]
@@ -506,6 +528,7 @@ to LevelProgression
                      set size 1
                    ]
         ]
+      ]
       ]
     
     
@@ -531,6 +554,7 @@ to LevelProgression
   if levelNumber = 6
   [
     ask players [die]
+    ask patches [set sprungPlate false]
     ask patches [set plabel ""]
     set fallvelocity 0
     import-pcolors "TheEnd.png"
@@ -705,19 +729,16 @@ end
 to jumpLeft
  ifelse countJumps? 
   [
-    ifelse amountOfJumps = 0 []
-    [
         jumpLeftMovement
         darkness
-    ]
   ]
   [
     jumpLeftMovement
-    darkness
   ]
 end
 to level1Setup
-    ask players [die]
+    ask players [die
+      ]
     set outerRing 6
     ask patches [ set plabel ""]
     import-pcolors "Level1.png"
@@ -809,6 +830,7 @@ end
 to level5setup
   ;level 5 designed by Kevin Yan 
   ask patches [set plabel ""]
+  ask patches [set sprungPlate false]
   set outerRing 10
    ask players [die]
    ask ghosts [die]
@@ -924,7 +946,6 @@ end
 to restart
   ask turtles [die]
   set fallVelocity 0
-  ask patches [set sprungPlate false]
   
   ; restart, you're dead. Now go get reincarnated you incompetent restarter. Seriously gotta remove these comments before Platek sees this code
   ifelse levelnumber = .5
@@ -933,6 +954,7 @@ to restart
   ]
   [
     set levelnumber levelnumber - .5
+   ask patches [set sprungPlate false]
   ]
 playersetup
 set calcDarkness true
@@ -1072,7 +1094,7 @@ GRAPHICS-WINDOW
 1
 1
 ticks
-30.0
+45.0
 
 BUTTON
 92
@@ -1211,6 +1233,62 @@ BUTTON
 NIL
 restart
 NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+MONITOR
+113
+280
+193
+325
+NIL
+fallVelocity
+17
+1
+11
+
+MONITOR
+680
+261
+793
+306
+NIL
+amountOfJumps
+17
+1
+11
+
+BUTTON
+758
+391
+852
+424
+NIL
+paintBlack
+T
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+781
+365
+877
+398
+NIL
+paintWhite
+T
 1
 T
 OBSERVER
