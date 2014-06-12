@@ -200,9 +200,9 @@ to gravityRules
     [
      if fallVelocity >= fallHeight 
      [
-       die 
-       playersetup 
        set calcdarkness true
+       die
+       playerSetup
        ] 
      set fallVelocity 0
     ]
@@ -268,6 +268,7 @@ to Lava
     
       restart
       set lavaDeath false
+      set fallVelocity 0
 
   ]
 
