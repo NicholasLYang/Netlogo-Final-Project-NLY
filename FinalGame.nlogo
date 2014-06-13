@@ -1,4 +1,4 @@
-globals [amountOfJumps levelNumber jumpDirection fallVelocity centerOfLightX centerOfLightY calcDarkness mocked lavaDeath countJumps? outerRing fallHeight]
+globals [amountOfJumps levelNumber jumpDirection fallVelocity centerOfLightX centerOfLightY calcDarkness calcDarkness2 mocked lavaDeath countJumps? outerRing fallHeight]
 ; Limits number of jumps per level
 breed [players player]
 breed [ghosts ghost] 
@@ -14,7 +14,7 @@ set calcDarkness false
 set lavaDeath false
 set countJumps? false
 set fallHeight 100
-
+set calcDarkness2 false
 set mocked false
 ask patches [set poisonLife true]
   
@@ -22,6 +22,7 @@ end
   
 to PlayerSetup
 ; sets up player on red "door" patch
+ask players [die]
 if levelnumber = -1
 [
   ask patch -15 -15 [
@@ -73,19 +74,25 @@ noSharing
 poisonSpawn
 ghostSpawn
 noJumps
+calculateDarkness
 end
 to noSharing
   ask players
   [ 
     if any? poisons-here
     [
-      die
       playerSetup
-      set calcDarkness true
+      set calcDarkness2 true
     ]
   ]
 end
-
+to calculateDarkness
+  ifelse calcDarkness2
+  [
+    darkness
+  ]
+  []
+end
 
 to poisonSpawn
   ask patches with [distancexy centerOfLightX centerOfLightY <= outerRing and pcolor = one-of [pink 132]] 
@@ -738,8 +745,7 @@ to jumpLeft
 end
 to level1Setup
       import-pcolors "Level1.png"
-    ask players [die
-      ]
+    ask players [die]
     set outerRing 6
     ask patches [ set plabel ""]
     PlayerSetup
@@ -1252,51 +1258,6 @@ fallVelocity
 17
 1
 11
-
-MONITOR
-680
-261
-793
-306
-NIL
-amountOfJumps
-17
-1
-11
-
-BUTTON
-758
-391
-852
-424
-NIL
-paintBlack
-T
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-BUTTON
-781
-365
-877
-398
-NIL
-paintWhite
-T
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
 
 @#$#@#$#@
 # LUX: A Game of Light
